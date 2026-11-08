@@ -3,26 +3,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Suivi des notes CM2 – IEF de Tivaouane</title>
 <style>
-:root{--bg:#f6f7f9;--cd:#fff;--tx:#1b2430;--mu:#5d6b7c;--bd:#dfe3e8;--ac:#1f6feb;--ok:#1a7f4b;--wa:#b7791f;--ko:#c0392b}
-@media (prefers-color-scheme:dark){:root{--bg:#12161c;--cd:#1b222b;--tx:#e8edf3;--mu:#9aa7b6;--bd:#2c3642;--ac:#5aa2ff;--ok:#4cc38a;--wa:#e0a84a;--ko:#ff7a6b;color-scheme:dark}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:1000px;margin:0 auto;padding:14px}
-h1{font-size:18px;margin:0}h3{font-size:15px;margin:18px 0 6px}.mu{color:var(--mu);font-size:13px}
-.box{max-width:380px;margin:40px auto;background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px}
-.top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}
-.bar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.hide{display:none}
-button,select,input{font:inherit;color:var(--tx);background:var(--cd);border:1px solid var(--bd);border-radius:8px;padding:7px 10px}
-button{cursor:pointer}button.on{background:var(--ac);border-color:var(--ac);color:#fff}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0}
-.c{background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:10px}.c b{display:block;font-size:20px}
-.w{overflow-x:auto;background:var(--cd);border:1px solid var(--bd);border-radius:10px}
-table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:5px 6px;border-bottom:1px solid var(--bd);text-align:center;white-space:nowrap}
-th{color:var(--mu);font-weight:600}td:nth-child(2),th:nth-child(2){text-align:left}
-td input[type=number]{width:56px;padding:4px;text-align:center}.tg{background:var(--bg);font-weight:600}
-details{background:var(--cd);border:1px solid var(--bd);border-radius:10px;margin:8px 0;padding:8px 10px}
-summary{cursor:pointer;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.ok{color:var(--ok)}.wa{color:var(--wa)}.err,.ko{color:var(--ko)}li{margin:4px 0}code{background:var(--bg);padding:2px 6px;border-radius:6px}
-</style></head><body><main id="app">Chargement…</main>
+:root{--bg:#f1f5f9;--cd:#fff;--tx:#0f172a;--mu:#64748b;--bd:#e2e8f0;--ac:#2563eb;--ac2:#1e40af;--ok:#15803d;--okb:#dcfce7;--ko:#b91c1c;--kob:#fee2e2;--sh:0 1px 3px rgba(15,23,42,.08),0 4px 12px rgba(15,23,42,.05)}
+@media (prefers-color-scheme:dark){:root{--bg:#0b1220;--cd:#111a2e;--tx:#e5eaf3;--mu:#93a1b8;--bd:#22304a;--ac:#3b82f6;--ac2:#1d4ed8;--ok:#4ade80;--okb:#12351f;--ko:#f87171;--kob:#3b1717;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1{font-size:19px;margin:0}h2{font-size:18px;margin:0}h3{font-size:15px;margin:20px 0 8px}.mu{color:var(--mu);font-size:13px}.hide{display:none!important}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;background:linear-gradient(135deg,var(--ac2),var(--ac));color:#fff;position:sticky;top:0;z-index:20}
+.hd div{display:flex;flex-direction:column}.hd b{font-size:17px}.hd span{font-size:12px;opacity:.85}.hd button{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.35)}
+.pg{max-width:1100px;margin:0 auto;padding:14px}
+.box{max-width:390px;margin:36px auto;background:var(--cd);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh);padding:22px;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--cd);border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh);padding:12px;margin:10px 0}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button,select,input{font:inherit;color:var(--tx);background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:9px 12px}
+button{cursor:pointer;font-weight:600}button:hover{filter:brightness(.96)}button.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.tabs button{border-radius:999px}.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px}.chips button{flex:0 0 auto;border-radius:12px;padding:6px 14px;line-height:1.2}.chips small{display:block;font-size:11px;opacity:.75;font-weight:400}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+.c{background:var(--cd);border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh);padding:12px}.c b{display:block;font-size:22px}.c small{color:var(--mu)}
+.w{overflow:auto;max-height:72vh;background:var(--cd);border:1px solid var(--bd);border-radius:14px;box-shadow:var(--sh)}
+table{border-collapse:separate;border-spacing:0;width:100%;font-size:13px}
+th,td{padding:7px 8px;border-bottom:1px solid var(--bd);text-align:center;white-space:nowrap;background:var(--cd)}
+th{position:sticky;top:0;z-index:2;background:var(--bg);color:var(--mu);font-weight:600}
+td input[type=number]{width:60px;padding:6px;text-align:center}
+#tb td:nth-child(1),#tb th:nth-child(1){position:sticky;left:0;z-index:1;min-width:46px}
+#tb td:nth-child(2),#tb th:nth-child(2){position:sticky;left:46px;z-index:1;text-align:left;min-width:170px;font-weight:600}
+#tb th:nth-child(1),#tb th:nth-child(2){z-index:3}.tg{background:var(--bg)!important;font-weight:700}
+#tb tr.ft td{position:static;left:auto;background:var(--bg);font-weight:600;text-align:left}tr.ft td{background:var(--bg);font-weight:700}
+.rw{cursor:pointer}.rw td:first-child{box-shadow:inset 4px 0 0 var(--bd)}.rw.g td:first-child{box-shadow:inset 4px 0 0 var(--ok)}.rw.r td:first-child{box-shadow:inset 4px 0 0 var(--ko)}.rw:hover td{filter:brightness(.97)}
+tr.me td{background:var(--okb);font-weight:700}
+.bd{display:inline-block;padding:2px 10px;border-radius:999px;font-weight:700;font-size:12px}.bd.g{background:var(--okb);color:var(--ok)}.bd.r{background:var(--kob);color:var(--ko)}.bd.n{background:var(--bg);color:var(--mu)}
+.pr{height:6px;background:var(--bd);border-radius:6px;overflow:hidden;min-width:70px;margin-top:4px}.pr i{display:block;height:100%;background:var(--ac)}.pr.g i{background:var(--ok)}.pr.r i{background:var(--ko)}
+.ov{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:50;overflow:auto;padding:14px}.pn{max-width:900px;margin:0 auto;background:var(--bg);border-radius:16px;padding:16px}
+.err,.ko{color:var(--ko)}.ok{color:var(--ok)}li{margin:5px 0}code{background:var(--bg);padding:2px 6px;border-radius:6px}a{color:var(--ac)}
+.wa{background:#25d366;border-color:#25d366;color:#fff}
+</style></head><body><div id="app">Chargement…</div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
 <script>
 const U="https://uoolsewfhnwlknvmelix.supabase.co",K="sb_publishable_MohLgsB6-c2KfbXKZ2VuTg_rauPkc1w";
@@ -30,11 +42,23 @@ const sb=supabase.createClient(U,K);
 const F=[["lc_r","LC","Ressources",40],["lc_c","LC","Compétence",60],["ma_r","Maths","Ressources",40],["ma_c","Maths","Compétence",60],["dm_h","DM","Histoire",8],["dm_g","DM","Géographie",8],["dm_s","DM","IST",8],["dm_c","DM","Compétence",16],["edd_v","EDD","Vivre ensemble",12],["edd_m","EDD","Vivre dans son milieu",12],["edd_c","EDD","Compétence",16]];
 const D={LC:["Langue et Communication",100],Maths:["Mathématiques",100],DM:["Découverte du Monde",40],EDD:["Éducation au Développement Durable",40]};
 const SOL={LC:"lecture à voix haute et dictée quotidiennes, petits écrits à produire en classe.",Maths:"calcul mental chaque jour, problèmes guidés, manipulation de matériel.",DM:"observations et expériences simples, cartes et frises construites avec les élèves.",EDD:"projets de classe sur le milieu local (propreté, jardin), débats sur le vivre ensemble."};
+const MN=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+const MOIS=["2026-10","2026-11","2026-12","2027-01","2027-02","2027-03","2027-04","2027-05","2027-06","2027-07"];
+const cur=new Date().toISOString().slice(0,7),DM0=cur<MOIS[0]?MOIS[0]:cur>MOIS[MOIS.length-1]?MOIS[MOIS.length-1]:cur;
+const ml=m=>MN[+m.slice(5)-1]+" "+m.slice(0,4);
+const perHtml=(c,fn)=>`<div class="chips">${MOIS.map(m=>`<button class="${m==c?"on":""}" onclick="${fn}('${m}')">${MN[+m.slice(5)-1]}<small>${m.slice(0,4)}</small></button>`).join("")}</div>`;
+const scr=()=>{const b=document.querySelector(".chips .on");if(b)b.scrollIntoView({inline:"center",block:"nearest"})};
 const $=s=>document.querySelector(s),esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const app=h=>{$("#app").innerHTML=h},msg=t=>`<p class="err">${t}</p>`;
+const hd=(t,s)=>`<header class="hd"><div><b>${t}</b><span>${s}</span></div><button onclick="out()">Déconnexion</button></header>`;
 const nm=v=>typeof v==="number"&&!isNaN(v),last=i=>!F[i+1]||F[i+1][1]!=F[i][1];
 const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
 const f1=v=>v==null?"–":(Math.round(v*10)/10).toString().replace(".",","),pc=v=>v==null?"–":f1(v)+" %";
+const bd=v=>`<span class="bd ${v==null?"n":v>50?"g":"r"}">${pc(v)}</span>`;
+const prog=(a,b)=>`<div class="pr ${b&&a==b?"g":""}"><i style="width:${b?a*100/b:0}%"></i></div><small class="mu">${a}/${b}</small>`;
+const cap=t=>String(t).trim().toLowerCase().replace(/(^|[\s'’-])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase());
+const fn=s=>esc(cap(s.prenom))+" "+esc(String(s.nom).toUpperCase());
+const cmp=(x,y)=>String(x.nom).localeCompare(String(y.nom),"fr",{sensitivity:"base"})||String(x.prenom).localeCompare(String(y.prenom),"fr",{sensitivity:"base"});
 const slug=t=>t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,".").replace(/^\.+|\.+$/g,"");
 const mail=l=>l.includes("@")?l.trim():slug(l)+"@ief-tivaouane.app",pw0=n=>n.toLowerCase().replace(/\s+/g,"");
 const rnd=()=>{const c="abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";return[...crypto.getRandomValues(new Uint32Array(12))].map(x=>c[x%c.length]).join("")};
@@ -45,13 +69,16 @@ const rate=L=>{const d=L.filter(x=>done(x.n));return d.length?d.filter(x=>sc20(x
 const sp=(s,g)=>rate(s.st.filter(x=>!g||x.sexe==g)),good=(s,g)=>{const p=sp(s,g);return p!=null&&p>50};
 const grp=(L,g)=>{if(!L.some(s=>s.st.some(x=>done(x.n)&&(!g||x.sexe==g))))return null;const Z=g?L.filter(s=>s.st.some(x=>x.sexe==g)):L;return Z.filter(s=>good(s,g)).length*100/Z.length};
 async function all(q){let o=[],f=0;for(;;){const{data,error}=await q().range(f,f+999);if(error)throw error;o=o.concat(data);if(data.length<1000)break;f+=1000}return o}
-let ME,P,E,ST,AD,SCH;
+const chk=async(p,ok)=>{const{error}=await p;if(error)alert(error.message);else if(ok)ok()};
+function wa(num,login,pw){let n=String(num||"").replace(/\D/g,"");if(n.startsWith("00"))n=n.slice(2);if(n.length==9)n="221"+n;if(n.length<9)return alert("Numéro invalide.");
+const t=`Bonjour,\nVoici vos identifiants pour le suivi des notes CM2 – IEF de Tivaouane :\nSite : ${location.href.split("#")[0]}\nIdentifiant : ${login}\nMot de passe : ${pw}\nMerci de ne pas les partager.`;window.open("https://wa.me/"+n+"?text="+encodeURIComponent(t),"_blank")}
+let ME,P,E,ST,AD,SCH=[],CUR=[],CD=[],INS=[],FL={c:"",q:"",i:"",eq:"",aq:""},CK=[],ECD={},ADD=[];
 
 /* ---------- Connexion / inscription ---------- */
-function showLogin(m=""){app(`<div class="box"><h1>Suivi des notes CM2</h1><span class="mu">IEF de Tivaouane</span><input id="lg" placeholder="Identifiant (nom du directeur)"><input id="pw" type="password" placeholder="Mot de passe"><button class="on" onclick="login()">Connexion</button><div id="m">${m}</div><a href="#" onclick="showReg();return false">Inscrire mon école</a></div>`)}
+function showLogin(m=""){app(`<div class="box"><div style="font-size:34px">📚</div><h1>Suivi des notes CM2</h1><span class="mu">IEF de Tivaouane</span><input id="lg" placeholder="Identifiant (nom du directeur)"><input id="pw" type="password" placeholder="Mot de passe"><button class="on" onclick="login()">Connexion</button><div id="m">${m}</div><a href="#" onclick="showReg();return false">Inscrire mon école</a></div>`)}
 async function login(){const{error}=await sb.auth.signInWithPassword({email:mail($("#lg").value),password:$("#pw").value});if(error)return $("#m").innerHTML=msg("Identifiant ou mot de passe incorrect.");boot()}
 async function out(){await sb.auth.signOut();showLogin()}
-async function showReg(){const{data:C}=await sb.from("codecs").select("*").order("nom");app(`<div class="box"><h1>Inscription d’une école</h1><input id="en" placeholder="Nom de l’école"><input id="dn" placeholder="Nom du directeur"><select id="cd"><option value="">Choisir le CODEC…</option>${(C||[]).map(c=>`<option value="${c.id}">${esc(c.nom)}</option>`).join("")}</select><input id="ic" placeholder="Code d’invitation"><button class="on" onclick="reg()">S’inscrire</button><div id="m"></div><a href="#" onclick="showLogin();return false">Retour à la connexion</a></div>`)}
+async function showReg(){const{data:C}=await sb.from("codecs").select("id,nom").order("nom");app(`<div class="box"><h1>Inscription d’une école</h1><input id="en" placeholder="Nom de l’école"><input id="dn" placeholder="Nom du directeur"><select id="cd"><option value="">Choisir le CODEC…</option>${(C||[]).map(c=>`<option value="${c.id}">${esc(c.nom)}</option>`).join("")}</select><input id="ic" placeholder="Code d’invitation"><button class="on" onclick="reg()">S’inscrire</button><div id="m"></div><a href="#" onclick="showLogin();return false">Retour à la connexion</a></div>`)}
 async function reg(){const en=$("#en").value.trim(),dn=$("#dn").value.trim(),cd=$("#cd").value,ic=$("#ic").value.trim(),pw=pw0(en),er=t=>{$("#m").innerHTML=msg(t)};
 if(!en||!dn||!cd||!ic)return er("Remplissez tous les champs.");if(pw.length<6)return er("Le nom de l’école est trop court.");
 for(const lg of[dn,dn+" "+en]){const e=mail(lg);let r=await sb.auth.signUp({email:e,password:pw});if(r.error||!r.data.session)r=await sb.auth.signInWithPassword({email:e,password:pw});if(r.error||!r.data.session)continue;
@@ -67,87 +94,131 @@ function showChange(){const id=E?(slug(E.directeur)==P.login?E.directeur:E.direc
 async function chg(){const a=$("#n1").value;if(a.length<6||a!=$("#n2").value)return $("#m").innerHTML=msg("Mots de passe différents ou trop courts.");
 const{error}=await sb.auth.updateUser({password:a});if(error)return $("#m").innerHTML=msg(esc(error.message));const r=await sb.rpc("mdp_change");if(r.error)return $("#m").innerHTML=msg(esc(r.error.message));boot()}
 
-/* ---------- Vue École ---------- */
-function startSchool(){ST={mo:new Date().toISOString().slice(0,7),nu:1,el:[],N:{}};
-app(`<div class="top"><div><h1>${esc(E.nom)}</h1><span class="mu">${esc(E.codecs?.nom||"CODEC non défini")} · Directeur : ${esc(E.directeur)}</span></div><button onclick="out()">Déconnexion</button></div>
-<div class="bar"><input type="month" id="mo" value="${ST.mo}"><select id="nu">${[1,2,3,4].map(n=>`<option value="${n}">Saisie ${n}</option>`).join("")}</select></div>
-<div class="bar"><input id="fp" placeholder="Prénom"><input id="fn" placeholder="Nom"><select id="fs"><option>G</option><option>F</option></select><button onclick="addEl()">Ajouter l’élève</button></div>
-<div class="w"><table id="tb"></table></div><span id="sv" class="mu"></span><h3>Pourcentage de réussite</h3><div class="cards" id="sp"></div>`);
-$("#mo").onchange=e=>{ST.mo=e.target.value||ST.mo;loadSchool()};$("#nu").onchange=e=>{ST.nu=+e.target.value;loadSchool()};
-const t=$("#tb");t.oninput=inp;t.onchange=chgd;t.onfocusout=e=>{if(!e.relatedTarget||!t.contains(e.relatedTarget))setTimeout(drawSchool,0)};loadSchool()}
-async function loadSchool(){const{data:el,error}=await sb.from("eleves").select("*").eq("ecole_id",E.id).order("nom").order("prenom");if(error)return alert(error.message);ST.el=el||[];ST.N={};
-const{data:n}=await sb.from("notes").select("*").eq("mois",ST.mo).eq("numero",ST.nu);(n||[]).forEach(r=>ST.N[r.eleve_id]=r);drawSchool()}
-function ordered(){const st=ST.el.map(e=>({...e,n:ST.N[e.id]})),al=(x,y)=>(x.nom+" "+x.prenom).localeCompare(y.nom+" "+y.prenom,"fr"),all=st.length>0&&st.every(s=>done(s.n));
-st.sort(all?(x,y)=>sc20(y.n)-sc20(x.n)||al(x,y):al);return{st,all}}
+/* ---------- Vue École : pages Saisie et Résultats ---------- */
+function startSchool(){ST={mo:DM0,el:[],N:{},pg:"s"};
+app(`${hd(esc(E.nom),`${esc(E.codecs?.nom||"CODEC non défini")} · Directeur : ${esc(E.directeur)}`)}<div class="pg"><div class="bar tabs"><button id="p_s" class="on" onclick="pgS('s')">✏️ Saisie</button><button id="p_r" onclick="pgS('r')">🏆 Résultats</button></div><div id="per">${perHtml(ST.mo,"pickS")}</div>
+<div id="sa"><div class="card bar"><input id="fp" placeholder="Prénom"><input id="fn" placeholder="Nom de famille"><select id="fs"><option value="G">Garçon</option><option value="F">Fille</option></select><button class="on" onclick="addEl()">＋ Ajouter l’élève</button></div>
+<div class="w"><table id="tb"></table></div><div id="sv" class="mu"></div><h3>Pourcentage de réussite</h3><div class="cards" id="sp"></div></div><div id="re" class="hide"></div></div>`);
+const t=$("#tb");t.oninput=inp;t.onchange=chgd;t.onfocusout=e=>{if(!e.relatedTarget||!t.contains(e.relatedTarget))setTimeout(drawSchool,0)};scr();loadSchool()}
+function pgS(p){ST.pg=p;$("#p_s").classList.toggle("on",p=="s");$("#p_r").classList.toggle("on",p=="r");$("#sa").classList.toggle("hide",p!="s");$("#re").classList.toggle("hide",p!="r");p=="s"?loadSchool():loadSchRes()}
+function pickS(m){ST.mo=m;$("#per").innerHTML=perHtml(m,"pickS");scr();ST.pg=="s"?loadSchool():loadSchRes()}
+async function loadSchool(){const{data:el,error}=await sb.from("eleves").select("*").eq("ecole_id",E.id);if(error)return alert(error.message);ST.el=el||[];ST.N={};
+const{data:n}=await sb.from("notes").select("*").eq("mois",ST.mo).eq("numero",1);(n||[]).forEach(r=>ST.N[r.eleve_id]=r);drawSchool()}
+function ordered(){const st=ST.el.map(e=>({...e,n:ST.N[e.id]})).sort(cmp),all=st.length>0&&st.every(s=>done(s.n));
+if(all)st.sort((x,y)=>sc20(y.n)-sc20(x.n)||cmp(x,y));return{st,all}}
 function drawSchool(){const{st,all}=ordered(),rk=s=>all?1+st.filter(o=>sc20(o.n)>sc20(s.n)).length:"–";
 let h=`<tr><th>Rang</th><th>Élève</th><th>Sexe</th>`+F.map((f,i)=>`<th>${f[1]}<br>${f[2]}<br>/${f[3]}</th>`+(last(i)?`<th class="tg">Total ${f[1]}<br>/${D[f[1]][1]}</th>`:"")).join("")+`<th>Total /280</th><th>Moy. /10</th><th></th></tr>`;
-st.forEach(s=>{const n=s.n||{};h+=`<tr data-id="${s.id}"><td>${rk(s)}</td><td>${esc(s.nom)} ${esc(s.prenom)}</td><td>${s.sexe}</td>`+F.map((f,i)=>`<td><input type="number" inputmode="decimal" min="0" max="${f[3]}" step="0.25" data-s="${s.id}" data-k="${f[0]}" data-m="${f[3]}" value="${nm(n[f[0]])?n[f[0]]:""}"></td>`+(last(i)?`<td class="tg" id="G${s.id}${f[1]}">${f1(dt(n,f[1]))}</td>`:"")).join("")+`<td id="T${s.id}">${f1(tot(n))}</td><td id="V${s.id}">${done(n)?f1(sc20(n)):"–"}</td><td><button onclick="delEl('${s.id}')">✕</button></td></tr>`});
+st.forEach(s=>{const n=s.n||{};h+=`<tr data-id="${s.id}"><td>${rk(s)}</td><td>${fn(s)}</td><td>${s.sexe}</td>`+F.map((f,i)=>`<td><input type="number" inputmode="decimal" min="0" max="${f[3]}" step="0.25" data-s="${s.id}" data-k="${f[0]}" data-m="${f[3]}" value="${nm(n[f[0]])?n[f[0]]:""}"></td>`+(last(i)?`<td class="tg" id="G${s.id}${f[1]}">${f1(dt(n,f[1]))}</td>`:"")).join("")+`<td id="T${s.id}">${f1(tot(n))}</td><td id="V${s.id}">${done(n)?f1(sc20(n)):"–"}</td><td><button onclick="delEl('${s.id}')" title="Supprimer">✕</button></td></tr>`});
+const g=st.filter(s=>s.sexe=="G").length;h+=`<tr class="ft"><td colspan="3">Effectif total : <b>${st.length}</b> · Garçons ${g} · Filles ${st.length-g}</td><td colspan="${F.length+6}"></td></tr>`;
 $("#tb").innerHTML=h;foot()}
 function live(id){const n=ST.N[id]||{};Object.keys(D).forEach(d=>{const g=$("#G"+id+d);if(g)g.textContent=f1(dt(n,d))});$("#T"+id).textContent=f1(tot(n));$("#V"+id).textContent=done(n)?f1(sc20(n)):"–"}
-function foot(){const st=ST.el.map(e=>({...e,n:ST.N[e.id]})),c=(g,l)=>{const d=st.filter(s=>done(s.n)&&(!g||s.sexe==g));return`<div class="c"><span class="mu">${l}</span><b>${pc(rate(d))}</b><span class="mu">${d.filter(s=>sc20(s.n)>5).length}/${d.length} élèves à plus de 50 %</span></div>`};$("#sp").innerHTML=c("","Total G/F")+c("G","Garçons")+c("F","Filles")}
+function foot(){const st=ST.el.map(e=>({...e,n:ST.N[e.id]})),c=(g,l)=>{const d=st.filter(s=>done(s.n)&&(!g||s.sexe==g)),z=st.filter(s=>!g||s.sexe==g).length;return`<div class="c"><span class="mu">${l}</span><b>${bd(rate(d))}</b><small>${d.filter(s=>sc20(s.n)>5).length}/${d.length} élèves à plus de 50 % · effectif ${z}</small></div>`};$("#sp").innerHTML=c("","Total G/F")+c("G","Garçons")+c("F","Filles")}
 function inp(e){const i=e.target;if(!i.dataset.s)return;let v=i.value===""?null:parseFloat(i.value.replace(",","."));const mx=+i.dataset.m;
 if(v!=null&&(isNaN(v)||v<0)){v=0;i.value=0}if(v>mx){v=mx;i.value=mx}ST.N[i.dataset.s]={...(ST.N[i.dataset.s]||{}),[i.dataset.k]:v};live(i.dataset.s);foot()}
 async function chgd(e){const i=e.target,id=i.dataset.s;if(!id)return;const k=i.dataset.k,v=ST.N[id]?ST.N[id][k]:null;
-const{error}=await sb.from("notes").upsert({eleve_id:id,mois:ST.mo,numero:ST.nu,[k]:v===undefined?null:v},{onConflict:"eleve_id,mois,numero"});
+const{error}=await sb.from("notes").upsert({eleve_id:id,mois:ST.mo,numero:1,[k]:v===undefined?null:v},{onConflict:"eleve_id,mois,numero"});
 if(error)return alert("Échec de l’enregistrement : "+error.message);$("#sv").textContent="Enregistré ✓";
 const o=ordered();if(o.all&&[...document.querySelectorAll("#tb tr[data-id]")].map(r=>r.dataset.id).join()!=o.st.map(s=>s.id).join())setTimeout(drawSchool,0)}
-async function addEl(){const prenom=$("#fp").value.trim(),nom=$("#fn").value.trim();if(!prenom||!nom)return;const{error}=await sb.from("eleves").insert({ecole_id:E.id,prenom,nom,sexe:$("#fs").value});if(error)return alert(error.message);loadSchool()}
+async function addEl(){const p=cap($("#fp").value),n=$("#fn").value.trim().toUpperCase();if(!p||!n)return;const{error}=await sb.from("eleves").insert({ecole_id:E.id,prenom:p,nom:n,sexe:$("#fs").value});if(error)return alert(error.message);$("#fp").value=$("#fn").value="";loadSchool()}
 async function delEl(id){if(!confirm("Supprimer cet élève et toutes ses notes ?"))return;const{error}=await sb.from("eleves").delete().eq("id",id);if(error)return alert(error.message);loadSchool()}
+async function loadSchRes(){const el=$("#re");el.textContent="Chargement…";const{data,error}=await sb.rpc("resultats_codec",{p_mois:ST.mo});
+if(error)return el.innerHTML=msg("Résultats indisponibles : "+esc(error.message));
+const R=(data||[]).map(r=>({...r,p:r.saisis?r.ok*100/r.saisis:null,pg:r.saisis_g?r.ok_g*100/r.saisis_g:null,pf:r.saisis_f?r.ok_f*100/r.saisis_f:null})).sort((a,b)=>(b.p??-1)-(a.p??-1)||a.nom.localeCompare(b.nom,"fr"));
+const rank=r=>r.p==null?"–":1+R.filter(o=>o.p!=null&&o.p>r.p).length,me=R.find(r=>r.ecole_id==E.id),N=R.length,any=R.some(r=>r.p!=null),cp=any?R.filter(r=>r.p!=null&&r.p>50).length*100/N:null,eff=R.reduce((a,r)=>a+r.eff,0);
+el.innerHTML=`<h3 style="margin-top:4px">CODEC ${esc(E.codecs?.nom||"")} · ${ml(ST.mo)}</h3><div class="cards"><div class="c"><span class="mu">Rang de votre école</span><b>${me&&me.p!=null?rank(me)+(rank(me)==1?"er":"e")+" / "+N:"–"}</b></div><div class="c"><span class="mu">% de votre école</span><b>${bd(me?me.p:null)}</b></div><div class="c"><span class="mu">% du CODEC</span><b>${bd(cp)}</b></div><div class="c"><span class="mu">Écoles du CODEC</span><b>${N}</b><small>Effectif total ${eff}</small></div></div>
+<div class="w"><table><tr><th>Rang</th><th style="text-align:left">École</th><th>Effectif</th><th>Saisie</th><th>% total</th><th>% garçons</th><th>% filles</th></tr>${R.map(r=>`<tr class="${r.ecole_id==E.id?"me":""}"><td>${rank(r)}</td><td style="text-align:left">${esc(r.nom)}${r.ecole_id==E.id?" ← votre école":""}</td><td>${r.eff}</td><td>${prog(r.saisis,r.eff)}</td><td>${bd(r.p)}</td><td>${bd(r.pg)}</td><td>${bd(r.pf)}</td></tr>`).join("")||"<tr><td colspan=7>Aucune donnée.</td></tr>"}<tr class="ft"><td colspan="2">Effectif total du CODEC</td><td>${eff}</td><td colspan="4"></td></tr></table></div>`}
 
 /* ---------- Administrateurs ---------- */
-function startAdmin(){const pr=P.role=="principal";AD={tab:"res",mo:new Date().toISOString().slice(0,7),nu:1};
-app(`<div class="top"><div><h1>Suivi des notes CM2 – IEF</h1><span class="mu">${pr?"Administrateur principal":"Administrateur (lecture seule)"}</span></div><button onclick="out()">Déconnexion</button></div>
-<div class="bar"><button id="b_res" class="on" onclick="tab('res')">Résultats</button>${pr?`<button id="b_ec" onclick="tab('ec')">Gestion des écoles</button><button id="b_ad" onclick="tab('ad')">Gestion des administrateurs</button>`:""}</div>
-<div class="bar" id="per"><input type="month" id="amo" value="${AD.mo}"><select id="anu">${[1,2,3,4].map(n=>`<option value="${n}">Saisie ${n}</option>`).join("")}</select></div><div id="ct">Chargement…</div>`);
-$("#amo").onchange=e=>{AD.mo=e.target.value||AD.mo;loadRes()};$("#anu").onchange=e=>{AD.nu=+e.target.value;loadRes()};loadRes()}
-function tab(t){AD.tab=t;["res","ec","ad"].forEach(x=>{const b=$("#b_"+x);if(b)b.classList.toggle("on",x==t)});$("#per").classList.toggle("hide",t!="res");t=="res"?loadRes():t=="ec"?drawEc():drawAd()}
+function startAdmin(){const pr=P.role=="principal";AD={tab:"res",mo:DM0};
+app(`${hd("Suivi des notes CM2 – IEF",pr?"Administrateur principal":"Administrateur (lecture seule)")}<div class="pg"><div class="bar tabs"><button id="b_res" class="on" onclick="tab('res')">📊 Résultats</button>${pr?`<button id="b_ec" onclick="tab('ec')">🏫 Gestion des écoles</button><button id="b_ad" onclick="tab('ad')">👤 Gestion des administrateurs</button>`:""}</div>
+<div id="ct">Chargement…</div></div><div id="ov" class="ov hide" onclick="if(event.target==this)closeSch()"></div>`);loadRes()}
+function pickA(m){AD.mo=m;loadRes()}
+function tab(t){AD.tab=t;["res","ec","ad"].forEach(x=>{const b=$("#b_"+x);if(b)b.classList.toggle("on",x==t)});t=="res"?loadRes():t=="ec"?drawEc():drawAd()}
 async function loadRes(){$("#ct").textContent="Chargement…";try{
-const[ec,el,cd,nt]=await Promise.all([all(()=>sb.from("ecoles").select("id,nom,directeur,codec_id,statut").order("id")),all(()=>sb.from("eleves").select("id,ecole_id,prenom,nom,sexe").order("id")),all(()=>sb.from("codecs").select("*").order("id")),all(()=>sb.from("notes").select("*").eq("mois",AD.mo).eq("numero",AD.nu).order("eleve_id"))]);
-const cn={};cd.forEach(c=>cn[c.id]=c.nom);const NM={};nt.forEach(r=>NM[r.eleve_id]=r);const by={};el.forEach(s=>(by[s.ecole_id]=by[s.ecole_id]||[]).push({...s,n:NM[s.id]}));
-SCH=ec.filter(e=>e.statut=="valide").map(e=>({...e,codec:cn[e.codec_id]||"Sans CODEC",st:by[e.id]||[]}));drawRes()}catch(e){$("#ct").innerHTML=msg(esc(e.message))}}
-function schHtml(s,i){const ds=s.st.filter(x=>done(x.n)),low=ds.filter(x=>sc20(x.n)<5),al=[];
+const[ec,el,cd,ins,nt]=await Promise.all([all(()=>sb.from("ecoles").select("id,nom,directeur,codec_id,statut").order("id")),all(()=>sb.from("eleves").select("id,ecole_id,prenom,nom,sexe").order("id")),all(()=>sb.from("codecs").select("*").order("id")),all(()=>sb.from("inspecteurs").select("*").order("nom")),all(()=>sb.from("notes").select("*").eq("mois",AD.mo).eq("numero",1).order("eleve_id"))]);
+CD=cd;INS=ins;const cn={};cd.forEach(c=>cn[c.id]=c.nom);const NM={};nt.forEach(r=>NM[r.eleve_id]=r);const by={};el.forEach(s=>(by[s.ecole_id]=by[s.ecole_id]||[]).push({...s,n:NM[s.id]}));
+SCH=ec.filter(e=>e.statut=="valide").map(e=>({...e,codec:cn[e.codec_id]||"Sans CODEC",st:(by[e.id]||[]).sort(cmp)}));drawRes()}catch(e){$("#ct").innerHTML=msg(esc(e.message))}}
+function drawRes(){const ci=FL.i?new Set(CD.filter(c=>c.inspecteur_id==FL.i).map(c=>c.id)):null,L=ci?SCH.filter(s=>ci.has(s.codec_id)):SCH;CUR=L;
+const A=L.flatMap(s=>s.st),dn=A.filter(x=>done(x.n)).length,eg=A.filter(x=>x.sexe=="G").length,sc=FL.i?"Inspecteur":"IEF",G={},ins=INS.find(x=>x.id==FL.i);
+L.forEach(s=>(G[s.codec]=G[s.codec]||[]).push(s));
+const C=Object.keys(G).map(k=>({k,sc:G[k],eff:G[k].reduce((a,s)=>a+s.st.length,0),n:G[k].filter(s=>good(s,"")).length,p:grp(G[k],""),pg:grp(G[k],"G"),pf:grp(G[k],"F")})).sort((a,b)=>(b.p??-1)-(a.p??-1));CK=C.map(c=>c.k);if(FL.c&&!CK.includes(FL.c))FL.c="";
+$("#ct").innerHTML=`<div class="card bar"><span class="mu">Mois</span><select id="amo" onchange="pickA(this.value)">${MOIS.map(m=>`<option value="${m}" ${m==AD.mo?"selected":""}>${ml(m)}</option>`).join("")}</select>
+<span class="mu">Inspecteur</span><select id="fi" onchange="FL.i=this.value;FL.c='';drawRes()"><option value="">Tous (IEF)</option>${INS.map(x=>`<option value="${x.id}" ${x.id==FL.i?"selected":""}>${esc(x.nom)}</option>`).join("")}</select></div>
+${ins?`<p class="mu">CODEC gérés par <b>${esc(ins.nom)}</b> : ${CD.filter(c=>c.inspecteur_id==ins.id).map(c=>esc(c.nom)).join(", ")||"aucun"}</p>`:""}
+<div class="cards"><div class="c"><span class="mu">% ${sc} total G/F</span><b>${bd(grp(L,""))}</b></div><div class="c"><span class="mu">% ${sc} garçons</span><b>${bd(grp(L,"G"))}</b></div><div class="c"><span class="mu">% ${sc} filles</span><b>${bd(grp(L,"F"))}</b></div>
+<div class="c"><span class="mu">Écoles validées</span><b>${L.length}</b></div><div class="c"><span class="mu">Effectif total</span><b>${A.length}</b><small>Garçons ${eg} · Filles ${A.length-eg}</small></div><div class="c"><span class="mu">Élèves saisis ce mois</span><b>${dn}</b>${prog(dn,A.length)}</div></div>
+<h3>Classement des CODEC <span class="mu">(cliquez pour filtrer les écoles)</span></h3><div class="w"><table><tr><th>Rang</th><th>CODEC</th><th>Écoles</th><th>Effectif</th><th>Écoles à plus de 50 %</th><th>% total G/F</th><th>% garçons</th><th>% filles</th></tr>${C.map((c,i)=>`<tr class="rw ${c.p==null?"":c.p>50?"g":"r"}" onclick="fc(${i})"><td>${c.p==null?"–":i+1}</td><td>${esc(c.k)}</td><td>${c.sc.length}</td><td>${c.eff}</td><td>${c.n}</td><td>${bd(c.p)}</td><td>${bd(c.pg)}</td><td>${bd(c.pf)}</td></tr>`).join("")}
+<tr class="ft"><td colspan="2">Total ${sc}</td><td>${L.length}</td><td>${A.length}</td><td>${L.filter(s=>good(s,"")).length}</td><td>${bd(grp(L,""))}</td><td>${bd(grp(L,"G"))}</td><td>${bd(grp(L,"F"))}</td></tr></table></div>
+<h3>Classement des écoles <span class="mu">(vert : plus de 50 % · rouge : 50 % ou moins)</span></h3>
+<div class="bar"><select id="fcd" onchange="FL.c=this.value;schTable()"><option value="">Tous les CODEC</option>${CK.map(k=>`<option ${FL.c==k?"selected":""}>${esc(k)}</option>`).join("")}</select><input id="fq" placeholder="🔍 Rechercher une école ou un directeur" value="${esc(FL.q)}" oninput="FL.q=this.value;schTable()" style="flex:1;min-width:200px"></div><div class="w" style="margin-top:8px" id="st"></div>`;schTable()}
+function fc(i){FL.c=CK[i];$("#fcd").value=FL.c;schTable();$("#st").scrollIntoView({behavior:"smooth",block:"start"})}
+function schTable(){const q=FL.q.toLowerCase();const R=CUR.filter(s=>(!FL.c||s.codec==FL.c)&&(!q||s.nom.toLowerCase().includes(q)||s.directeur.toLowerCase().includes(q))).sort((a,b)=>(sp(b,"")??-1)-(sp(a,"")??-1)||a.nom.localeCompare(b.nom,"fr"));
+$("#st").innerHTML=`<table><tr><th>Rang</th><th style="text-align:left">École</th><th>CODEC</th><th>Effectif</th><th>Saisie</th><th>% total</th><th>% garçons</th><th>% filles</th></tr>${R.map((s,i)=>{const p=sp(s,"");return`<tr class="rw ${p==null?"":p>50?"g":"r"}" onclick="openSch('${s.id}')"><td>${p==null?"–":i+1}</td><td style="text-align:left"><b>${esc(s.nom)}</b></td><td>${esc(s.codec)}</td><td>${s.st.length}</td><td>${prog(s.st.filter(x=>done(x.n)).length,s.st.length)}</td><td>${bd(p)}</td><td>${bd(sp(s,"G"))}</td><td>${bd(sp(s,"F"))}</td></tr>`}).join("")||"<tr><td colspan=8>Aucune école.</td></tr>"}<tr class="ft"><td colspan="3">Effectif total (${R.length} écoles)</td><td>${R.reduce((a,s)=>a+s.st.length,0)}</td><td colspan="4"></td></tr></table>`}
+function openSch(id){const s=SCH.find(x=>x.id==id);if(!s)return;const ds=s.st.filter(x=>done(x.n)),low=ds.filter(x=>sc20(x.n)<5),al=[],g=s.st.filter(x=>x.sexe=="G").length;
 Object.keys(D).forEach(d=>{if(ds.length){const v=avg(ds.map(x=>dt(x.n,d)/D[d][1]*100));if(v<50)al.push(`${D[d][0]} : score de ${Math.round(v)} % (sous 50 %). Piste : ${SOL[d]}`)}});
-if(low.length)al.push(`${low.length} élève(s) sous 5/10 : ${low.map(x=>esc(x.prenom+" "+x.nom)).join(", ")}. Piste : soutien individualisé et suivi hebdomadaire.`);
+if(low.length)al.push(`${low.length} élève(s) sous 5/10 : ${low.map(fn).join(", ")}. Piste : soutien individualisé et suivi hebdomadaire.`);
 const rk=[...ds].sort((a,b)=>sc20(b.n)-sc20(a.n));
-return`<details><summary><span><b>${sp(s,"")==null?"":(i+1)+"."} ${esc(s.nom)}</b> · ${ds.length}/${s.st.length} élèves</span><span><b>${pc(sp(s,""))}</b> (G ${pc(sp(s,"G"))} · F ${pc(sp(s,"F"))}) · <span class="${al.length?"ko":"ok"}">${al.length} alerte(s)</span></span></summary>
-<div class="mu">Directeur : ${esc(s.directeur)}</div><ul>${al.length?al.map(a=>`<li>${a}</li>`).join(""):"<li class='ok'>Aucune alerte pour cette saisie.</li>"}</ul>
-<div class="mu">Classement des élèves :</div><ol>${rk.map(x=>`<li>${esc(x.nom+" "+x.prenom)} (${x.sexe}) — ${f1(sc20(x.n))}/10</li>`).join("")}</ol></details>`}
-function drawRes(){const L=SCH,A=L.flatMap(s=>s.st).filter(x=>done(x.n)),G={};L.forEach(s=>(G[s.codec]=G[s.codec]||[]).push(s));
-const C=Object.keys(G).map(k=>({k,sc:G[k],n:G[k].filter(s=>good(s,"")).length,p:grp(G[k],""),pg:grp(G[k],"G"),pf:grp(G[k],"F")})).sort((a,b)=>(b.p??-1)-(a.p??-1));
-$("#ct").innerHTML=`<div class="cards">${[["% IEF total G/F",pc(grp(L,""))],["% IEF garçons",pc(grp(L,"G"))],["% IEF filles",pc(grp(L,"F"))],["Écoles validées",L.length],["Élèves saisis",A.length],["Élèves sous 5/10",A.filter(x=>sc20(x.n)<5).length]].map(c=>`<div class="c"><span class="mu">${c[0]}</span><b>${c[1]}</b></div>`).join("")}</div>
-<h3>Classement des CODEC</h3><div class="w"><table><tr><th>Rang</th><th>CODEC</th><th>Écoles</th><th>Écoles à plus de 50 %</th><th>% total G/F</th><th>% garçons</th><th>% filles</th></tr>${C.map((c,i)=>`<tr><td>${c.p==null?"–":i+1}</td><td>${esc(c.k)}</td><td>${c.sc.length}</td><td>${c.n}</td><td><b>${pc(c.p)}</b></td><td>${pc(c.pg)}</td><td>${pc(c.pf)}</td></tr>`).join("")}</table></div>
-<h3>Écoles par CODEC</h3>${C.map(c=>`<details><summary><span><b>${esc(c.k)}</b> · ${c.sc.length} école(s)</span><b>${pc(c.p)}</b></summary>${[...c.sc].sort((a,b)=>(sp(b,"")??-1)-(sp(a,"")??-1)).map(schHtml).join("")}</details>`).join("")||"<p class='mu'>Aucune école validée pour le moment.</p>"}`}
+$("#ov").innerHTML=`<div class="pn"><div class="bar" style="justify-content:space-between"><div><h2>${esc(s.nom)}</h2><span class="mu">${esc(s.codec)} · Directeur : ${esc(s.directeur)}</span></div><button onclick="closeSch()">✕ Fermer</button></div>
+<div class="cards"><div class="c"><span class="mu">% total · ${ml(AD.mo)}</span><b>${bd(sp(s,""))}</b></div><div class="c"><span class="mu">% garçons</span><b>${bd(sp(s,"G"))}</b></div><div class="c"><span class="mu">% filles</span><b>${bd(sp(s,"F"))}</b></div><div class="c"><span class="mu">Effectif total</span><b>${s.st.length}</b><small>Garçons ${g} · Filles ${s.st.length-g}</small></div></div>
+<h3>Suivi mensuel (par ordre chronologique)</h3><div id="hs">Chargement…</div>
+<h3>Alertes · ${ml(AD.mo)}</h3><ul>${al.length?al.map(a=>`<li>${a}</li>`).join(""):"<li class='ok'>Aucune alerte pour ce mois.</li>"}</ul>
+<h3>Classement des élèves · ${ml(AD.mo)}</h3><div class="w"><table><tr><th>Rang</th><th style="text-align:left">Élève</th><th>Sexe</th><th>Moyenne /10</th></tr>${rk.map((x,i)=>`<tr class="rw ${sc20(x.n)>5?"g":"r"}"><td>${i+1}</td><td style="text-align:left">${fn(x)}</td><td>${x.sexe}</td><td><b>${f1(sc20(x.n))}</b></td></tr>`).join("")||"<tr><td colspan=4>Aucun élève complet ce mois-ci.</td></tr>"}<tr class="ft"><td colspan="2">Effectif total : ${s.st.length}</td><td colspan="2"></td></tr></table></div></div>`;
+$("#ov").classList.remove("hide");document.body.style.overflow="hidden";hist(s)}
+function closeSch(){$("#ov").classList.add("hide");document.body.style.overflow=""}
+async function hist(s){const el=$("#hs");try{let rows=[];const ids=s.st.map(x=>x.id);
+for(let i=0;i<ids.length;i+=50){const{data,error}=await sb.from("notes").select("*").in("eleve_id",ids.slice(i,i+50)).eq("numero",1);if(error)throw error;rows=rows.concat(data)}
+const NM={};rows.forEach(r=>{(NM[r.mois]=NM[r.mois]||{})[r.eleve_id]=r});const ms=Object.keys(NM).sort();if(!ms.length)return el.innerHTML="<p class='mu'>Aucune saisie pour le moment.</p>";
+let prev=null;el.innerHTML=`<div class="w"><table><tr><th style="text-align:left">Mois</th><th>Élèves saisis</th><th>% total</th><th>Évolution</th><th>% garçons</th><th>% filles</th></tr>${ms.map(m=>{const it=s.st.map(x=>({sexe:x.sexe,n:NM[m][x.id]})),p=rate(it),n=it.filter(x=>done(x.n)).length,d=prev==null||p==null?null:p-prev;if(p!=null)prev=p;
+return`<tr><td style="text-align:left"><b>${ml(m)}</b></td><td>${prog(n,s.st.length)}</td><td>${bd(p)}<div class="pr ${p>50?"g":"r"}"><i style="width:${p||0}%"></i></div></td><td>${d==null?"–":d>0?`<span class="ok">▲ +${f1(d)} pts</span>`:d<0?`<span class="ko">▼ ${f1(d)} pts</span>`:"="}</td><td>${bd(rate(it.filter(x=>x.sexe=="G")))}</td><td>${bd(rate(it.filter(x=>x.sexe=="F")))}</td></tr>`}).join("")}</table></div>`}catch(e){el.innerHTML=msg(esc(e.message))}}
 
-/* ---------- Gestion des écoles (principal) ---------- */
+/* ---------- Gestion des écoles, CODEC et inspecteurs (principal) ---------- */
 async function drawEc(){$("#ct").textContent="Chargement…";try{
-const[ec,cd,pm]=await Promise.all([all(()=>sb.from("ecoles").select("*").order("nom").order("id")),all(()=>sb.from("codecs").select("*").order("nom")),sb.from("parametres").select("*").eq("cle","code_invitation").maybeSingle()]);
-ECL={};ec.forEach(e=>ECL[e.user_id]=e);ec.sort((a,b)=>(a.statut=="en_attente"?0:1)-(b.statut=="en_attente"?0:1));const opt=(L,v)=>L.map(x=>`<option value="${x[0]}" ${x[0]==v?"selected":""}>${esc(x[1])}</option>`).join("");
-$("#ct").innerHTML=`<h3>Code d’invitation</h3><div class="bar"><input id="ci" value="${esc(pm.data?pm.data.valeur:"")}"><button onclick="setCode()">Enregistrer</button></div>
-<h3>CODEC</h3><div class="bar"><input id="nc" placeholder="Nom du nouveau CODEC"><button onclick="addCd()">Ajouter</button></div>
-${cd.map(c=>`<div class="bar"><input value="${esc(c.nom)}" onchange="renCd('${c.id}',this.value)"><button onclick="delCd('${c.id}')">Supprimer</button></div>`).join("")}
-<h3>Écoles (${ec.length})</h3><div class="w"><table><tr><th>École</th><th>Directeur</th><th>CODEC</th><th>Statut</th><th>Actions</th></tr>${ec.map(e=>`<tr><td style="text-align:left">${esc(e.nom)}</td><td>${esc(e.directeur)}</td>
-<td><select onchange="upEc('${e.id}',{codec_id:this.value||null})"><option value="">–</option>${opt(cd.map(c=>[c.id,c.nom]),e.codec_id)}</select></td>
-<td><select onchange="upEc('${e.id}',{statut:this.value})">${opt([["en_attente","En attente"],["valide","Validée"],["suspendu","Suspendue"]],e.statut)}</select></td>
-<td><button onclick="rstEc('${e.user_id}')">Réinitialiser mot de passe</button> <button onclick="delEc('${e.user_id}')">Supprimer</button></td></tr>`).join("")}</table></div>`}catch(e){$("#ct").innerHTML=msg(esc(e.message))}}
-const chk=async(p,ok)=>{const{error}=await p;if(error)alert(error.message);else if(ok)ok()};
+const[ec,cd,ins,pf,pw,pm]=await Promise.all([all(()=>sb.from("ecoles").select("*").order("nom").order("id")),all(()=>sb.from("codecs").select("*").order("nom").order("id")),all(()=>sb.from("inspecteurs").select("*").order("nom")),all(()=>sb.from("profiles").select("id,login").eq("role","ecole").order("id")),all(()=>sb.from("ecole_passwords").select("*").order("user_id")),sb.from("parametres").select("*").eq("cle","code_invitation").maybeSingle()]);
+const lg={},mp={};pf.forEach(p=>lg[p.id]=p.login);pw.forEach(p=>mp[p.user_id]=p.mot_de_passe);ECD={ec,cd,ins,lg,mp};
+const o=(L,v)=>L.map(x=>`<option value="${x[0]}" ${x[0]==v?"selected":""}>${esc(x[1])}</option>`).join(""),co=[["","–"],...cd.map(c=>[c.id,c.nom])];
+$("#ct").innerHTML=`<div class="card"><h3 style="margin-top:0">Code d’invitation</h3><div class="bar"><input id="ci" value="${esc(pm.data?pm.data.valeur:"")}"><button class="on" onclick="setCode()">Enregistrer</button></div></div>
+<div class="card"><h3 style="margin-top:0">CODEC</h3><div class="bar"><input id="nc" placeholder="Nom du nouveau CODEC"><button class="on" onclick="addCd()">＋ Ajouter</button></div>
+${cd.map(c=>`<div class="bar" style="margin-top:8px"><input value="${esc(c.nom)}" onchange="renCd('${c.id}',this.value)"><select onchange="setIns('${c.id}',this.value)"><option value="">Inspecteur : aucun</option>${o(ins.map(x=>[x.id,x.nom]),c.inspecteur_id)}</select><button onclick="delCd('${c.id}')">Supprimer</button></div>`).join("")}</div>
+<div class="card"><h3 style="margin-top:0">Inspecteurs <span class="mu">(chacun gère deux CODEC)</span></h3><div class="bar"><input id="in" placeholder="Nom de l’inspecteur"><select id="ic1">${o(co,"")}</select><select id="ic2">${o(co,"")}</select><button class="on" onclick="addIns()">＋ Ajouter</button></div>
+${ins.map(x=>{const L=cd.filter(c=>c.inspecteur_id==x.id);return`<div class="bar" style="margin-top:8px"><b>${esc(x.nom)}</b><span class="mu">${L.map(c=>esc(c.nom)).join(", ")||"aucun CODEC"}${L.length>2?" ⚠️ plus de deux":""}</span><button onclick="delIns('${x.id}')">Supprimer</button></div>`}).join("")}</div>
+<h3>Écoles (${ec.length})</h3><input id="eq" placeholder="🔍 Rechercher : école, directeur, CODEC, identifiant" value="${esc(FL.eq)}" oninput="FL.eq=this.value;ecTable()" style="width:100%;margin-bottom:8px"><div class="w" id="et"></div>`;ecTable()}catch(e){$("#ct").innerHTML=msg(esc(e.message))}}
+const idOf=e=>{const l=ECD.lg[e.user_id];return l&&slug(e.directeur)!=l?e.directeur+" "+e.nom:e.directeur};
+function ecTable(){const{ec,cd,mp}=ECD,q=FL.eq.toLowerCase(),cn={};cd.forEach(c=>cn[c.id]=c.nom);
+const R=ec.filter(e=>!q||[e.nom,e.directeur,cn[e.codec_id]||"",idOf(e)].join(" ").toLowerCase().includes(q)).sort((a,b)=>(a.statut=="en_attente"?0:1)-(b.statut=="en_attente"?0:1));
+const o=(L,v)=>L.map(x=>`<option value="${x[0]}" ${x[0]==v?"selected":""}>${esc(x[1])}</option>`).join("");
+$("#et").innerHTML=`<table><tr><th style="text-align:left">École</th><th>Identifiant</th><th>Mot de passe</th><th>CODEC</th><th>Statut</th><th>Actions</th></tr>${R.map(e=>`<tr><td style="text-align:left"><b>${esc(e.nom)}</b></td><td><code>${esc(idOf(e))}</code></td>
+<td>${mp[e.user_id]?`<code>${esc(mp[e.user_id])}</code> <span class="mu">provisoire</span>`:`<span class="mu">choisi par l’école</span>`}</td>
+<td><select onchange="upEc('${e.id}',{codec_id:this.value||null})"><option value="">–</option>${o(cd.map(c=>[c.id,c.nom]),e.codec_id)}</select></td>
+<td><select onchange="upEc('${e.id}',{statut:this.value})">${o([["en_attente","⏳ En attente"],["valide","✅ Validée"],["suspendu","⛔ Suspendue"]],e.statut)}</select></td>
+<td><button class="wa" onclick="waEc('${e.user_id}')">📲 WhatsApp</button> <button onclick="newPw('${e.user_id}')">🔑 Nouveau mot de passe</button> <button onclick="delEc('${e.user_id}')">Supprimer</button></td></tr>`).join("")||"<tr><td colspan=6>Aucune école.</td></tr>"}</table>`}
 const setCode=()=>chk(sb.from("parametres").update({valeur:$("#ci").value.trim()}).eq("cle","code_invitation"),()=>alert("Code d’invitation enregistré."));
 const addCd=()=>{const n=$("#nc").value.trim().toUpperCase();if(n)chk(sb.from("codecs").insert({nom:n}),drawEc)};
 const renCd=(id,v)=>chk(sb.from("codecs").update({nom:v.trim().toUpperCase()}).eq("id",id),drawEc);
 const delCd=id=>{if(confirm("Supprimer ce CODEC ? Les écoles concernées n’auront plus de CODEC."))chk(sb.from("codecs").delete().eq("id",id),drawEc)};
+function setIns(cid,v){if(v&&ECD.cd.filter(c=>c.inspecteur_id==v&&c.id!=cid).length>=2&&!confirm("Cet inspecteur gère déjà deux CODEC. Continuer ?"))return drawEc();chk(sb.from("codecs").update({inspecteur_id:v||null}).eq("id",cid),drawEc)}
+async function addIns(){const n=$("#in").value.trim();if(!n)return;const{data,error}=await sb.from("inspecteurs").insert({nom:n}).select().single();if(error)return alert(error.message);
+const ids=[...new Set([$("#ic1").value,$("#ic2").value].filter(Boolean))];if(ids.length)await chk(sb.from("codecs").update({inspecteur_id:data.id}).in("id",ids));drawEc()}
+const delIns=id=>{if(confirm("Supprimer cet inspecteur ? Ses CODEC resteront, sans inspecteur."))chk(sb.from("inspecteurs").delete().eq("id",id),drawEc)};
 const upEc=(id,o)=>chk(sb.from("ecoles").update(o).eq("id",id));
-let ECL={};
-const rstEc=u=>{if(confirm("Réinitialiser le mot de passe de cette école au nom de l’école en minuscules, sans espaces ?"))chk(sb.rpc("changer_mdp_utilisateur",{p_user:u,p_mdp:pw0(ECL[u].nom)}),()=>alert("Mot de passe réinitialisé. L’école devra en choisir un nouveau à sa prochaine connexion."))};
+const newPw=u=>{if(confirm("Générer un nouveau mot de passe pour cette école ? L’ancien ne fonctionnera plus et l’école devra en choisir un nouveau à sa prochaine connexion."))chk(sb.rpc("changer_mdp_utilisateur",{p_user:u,p_mdp:rnd()}),drawEc)};
 const delEc=u=>{if(confirm("Supprimer définitivement cette école, ses élèves et ses notes ?"))chk(sb.rpc("supprimer_utilisateur",{p_user:u}),drawEc)};
+function waEc(u){const e=ECD.ec.find(x=>x.user_id==u),pw=ECD.mp[u];if(!pw)return alert("Cette école a choisi son propre mot de passe : générez-en un nouveau pour pouvoir l’envoyer.");const t=prompt("Numéro WhatsApp du directeur (ex. 77 123 45 67) :");if(t)wa(t,idOf(e),pw)}
 
 /* ---------- Gestion des administrateurs (principal) ---------- */
-async function drawAd(){$("#ct").textContent="Chargement…";const{data,error}=await sb.from("admin_passwords").select("*").order("login");if(error)return $("#ct").innerHTML=msg(esc(error.message));
-$("#ct").innerHTML=`<h3>Nouvel administrateur (lecture seule)</h3><div class="bar"><input id="an" placeholder="Nom ou identifiant"><button class="on" onclick="addAdm()">Créer</button></div><p class="mu">L’appli génère le mot de passe. L’administrateur ne peut pas le changer.</p>
-<div class="w"><table><tr><th>Identifiant</th><th>Mot de passe</th><th>Actions</th></tr>${data.map(a=>`<tr><td>${esc(a.login)}</td><td><code>${esc(a.mot_de_passe)}</code></td><td><button onclick="regAdm('${a.user_id}')">Régénérer</button> <button onclick="delAdm('${a.user_id}')">Supprimer</button></td></tr>`).join("")||"<tr><td colspan=3>Aucun administrateur secondaire.</td></tr>"}</table></div>`}
-async function addAdm(){const lg=$("#an").value.trim();if(!lg)return;const pw=rnd(),s2=supabase.createClient(U,K,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+async function drawAd(){$("#ct").textContent="Chargement…";try{ADD=await all(()=>sb.from("admin_passwords").select("*").order("login"))}catch(e){return $("#ct").innerHTML=msg(esc(e.message))}
+$("#ct").innerHTML=`<div class="card"><h3 style="margin-top:0">Nouvel administrateur (lecture seule)</h3><div class="bar"><input id="an" placeholder="Nom ou identifiant"><input id="at" placeholder="Téléphone WhatsApp (facultatif)"><button class="on" onclick="addAdm()">＋ Créer</button></div><p class="mu">L’appli génère le mot de passe. L’administrateur ne peut pas le changer.</p></div>
+<h3>Liste des administrateurs (${ADD.length})</h3><input id="aq" placeholder="🔍 Rechercher un administrateur" value="${esc(FL.aq)}" oninput="FL.aq=this.value;adTable()" style="width:100%;margin-bottom:8px"><div class="w" id="at2"></div>`;adTable()}
+function adTable(){const q=FL.aq.toLowerCase();$("#at2").innerHTML=`<table><tr><th style="text-align:left">Identifiant</th><th>Mot de passe</th><th>Téléphone</th><th>Actions</th></tr>${ADD.filter(a=>!q||a.login.toLowerCase().includes(q)).map(a=>`<tr><td style="text-align:left"><b>${esc(a.login)}</b></td><td><code>${esc(a.mot_de_passe)}</code></td>
+<td><input id="t_${a.user_id}" value="${esc(a.telephone||"")}" placeholder="77 123 45 67" onchange="setTel('${a.user_id}',this.value)" style="width:150px"></td>
+<td><button class="wa" onclick="waAdm('${a.user_id}')">📲 WhatsApp</button> <button onclick="regAdm('${a.user_id}')">🔑 Nouveau mot de passe</button> <button onclick="delAdm('${a.user_id}')">Supprimer</button></td></tr>`).join("")||"<tr><td colspan=4>Aucun administrateur secondaire.</td></tr>"}</table>`}
+const setTel=(u,v)=>chk(sb.from("admin_passwords").update({telephone:v.trim()}).eq("user_id",u));
+function waAdm(u){const a=ADD.find(x=>x.user_id==u);wa($("#t_"+u).value,a.login,a.mot_de_passe)}
+async function addAdm(){const lg=$("#an").value.trim(),tel=$("#at").value.trim();if(!lg)return;const pw=rnd(),s2=supabase.createClient(U,K,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
 const r=await s2.auth.signUp({email:mail(lg),password:pw});if(r.error||!r.data.user)return alert(r.error?r.error.message:"Création impossible (identifiant déjà utilisé ?)");
-chk(sb.rpc("creer_admin",{p_user:r.data.user.id,p_login:lg,p_mdp:pw}),drawAd)}
-const regAdm=u=>chk(sb.rpc("changer_mdp_utilisateur",{p_user:u,p_mdp:rnd()}),drawAd);
+const{error}=await sb.rpc("creer_admin",{p_user:r.data.user.id,p_login:lg,p_mdp:pw});if(error)return alert(error.message);
+if(tel)await sb.from("admin_passwords").update({telephone:tel}).eq("user_id",r.data.user.id);drawAd()}
+const regAdm=u=>{if(confirm("Générer un nouveau mot de passe pour cet administrateur ? L’ancien ne fonctionnera plus."))chk(sb.rpc("changer_mdp_utilisateur",{p_user:u,p_mdp:rnd()}),drawAd)};
 const delAdm=u=>{if(confirm("Supprimer cet administrateur ?"))chk(sb.rpc("supprimer_utilisateur",{p_user:u}),drawAd)};
 
-sb.auth.onAuthStateChange(()=>{});boot();
+boot();
 </script></body></html>
