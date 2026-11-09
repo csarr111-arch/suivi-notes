@@ -74,9 +74,12 @@ h4{font-size:12px;color:var(--mu);margin:14px 0 6px;text-transform:uppercase;let
 /* ===== Configuration ===== */
 const U="https://uoolsewfhnwlknvmelix.supabase.co",K="sb_publishable_MohLgsB6-c2KfbXKZ2VuTg_rauPkc1w";
 const sb=supabase.createClient(U,K);
-const F=[["lc_r","LC","Ressources",40],["lc_c","LC","Compétence",60],["ma_r","Maths","Ressources",40],["ma_c","Maths","Compétence",60],["dm_h","DM","Histoire",8],["dm_g","DM","Géographie",8],["dm_s","DM","IST",8],["dm_c","DM","Compétence",16],["edd_v","EDD","Vivre ensemble",12],["edd_m","EDD","Vivre dans son milieu",12],["edd_c","EDD","Compétence",16]];
-const D={LC:["Langue et Communication",100],Maths:["Mathématiques",100],DM:["Découverte du Monde",40],EDD:["Éducation au Développement Durable",40]};
-const SOL={LC:"lecture à voix haute et dictée quotidiennes, petits écrits à produire en classe.",Maths:"calcul mental chaque jour, problèmes guidés, manipulation de matériel.",DM:"observations et expériences simples, cartes et frises construites avec les élèves.",EDD:"projets de classe sur le milieu local (propreté, jardin), débats sur le vivre ensemble."};
+const F=[["lc_r","LC","Ressources / Voyellation",40],["lc_c","LC","Compétence",60],["ma_r","Maths","Ressources",40],["ma_c","Maths","Compétence",60],["dm_h","DM","Histoire",24],["dm_g","DM","Géographie",24],["dm_s","DM","IST",24],["dm_c","DM","Compétence",16],["edd_v","EDD","Vivre ensemble",24],["edd_m","EDD","Vivre dans son milieu",24],["edd_c","EDD","Compétence",16],["dessin","Dessin","",10],["ar_fr","AF","facultatif",10,1]];
+/* Total des ressources DM et EDD : jamais plus de 24, sans plafond propre à chaque matière */
+const GR={};[[["dm_h","dm_g","dm_s"],"DM"],[["edd_v","edd_m"],"EDD"]].forEach(([g,n])=>g.forEach(k=>GR[k]={g,m:24,n}));
+const LB={EDD:"EDD / Éducation Religieuse",AF:"Arabe / Français"},lb=d=>LB[d]||d;
+const D={LC:["Langue et Communication",100],Maths:["Mathématiques",100],DM:["Découverte du Monde",40],EDD:["EDD / Éducation Religieuse",40],Dessin:["Dessin",10],AF:["Arabe / Français (facultatif)",10]};
+const SOL={LC:"lecture à voix haute et dictée quotidiennes, petits écrits à produire en classe.",Maths:"calcul mental chaque jour, problèmes guidés, manipulation de matériel.",DM:"observations et expériences simples, cartes et frises construites avec les élèves.",EDD:"projets de classe sur le milieu local (propreté, jardin), débats sur le vivre ensemble.",Dessin:"séances de dessin libre et dirigé, observation et reproduction de modèles simples.",AF:"lecture et expression orale quotidiennes dans la langue concernée."};
 const MN=["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
 const MOIS=["2026-10","2026-11","2026-12","2027-01","2027-02","2027-03","2027-04","2027-05","2027-06","2027-07"];
 const cur=new Date().toISOString().slice(0,7),DM0=cur<MOIS[0]?MOIS[0]:cur>MOIS[MOIS.length-1]?MOIS[MOIS.length-1]:cur;
@@ -89,7 +92,7 @@ const ic=(n,s=18)=>`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 2
 /* ===== Outils ===== */
 const $=s=>document.querySelector(s),esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const app=h=>{$("#app").innerHTML=h};
-const nm=v=>typeof v==="number"&&!isNaN(v),last=i=>!F[i+1]||F[i+1][1]!=F[i][1];
+const nm=v=>typeof v==="number"&&!isNaN(v),last=i=>(!F[i+1]||F[i+1][1]!=F[i][1])&&F.filter(f=>f[1]==F[i][1]).length>1;
 const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
 const f1=v=>v==null?"–":(Math.round(v*10)/10).toString().replace(".",","),pc=v=>v==null?"–":f1(v)+" %";
 const bd=v=>`<span class="pill ${v==null?"n":v>50?"g":"r"}">${pc(v)}</span>`;
@@ -103,9 +106,9 @@ const rnd=()=>{const c="abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789";
 async function all(q){let o=[],f=0;for(;;){const{data,error}=await q().range(f,f+999);if(error)throw error;o=o.concat(data);if(data.length<1000)break;f+=1000}return o}
 
 /* ===== Calculs (logique métier inchangée) ===== */
-const done=n=>!!n&&F.every(f=>nm(n[f[0]]));
+const done=n=>!!n&&F.every(f=>f[4]||nm(n[f[0]]));
 const dt=(n,d)=>F.filter(f=>f[1]==d).reduce((a,f)=>a+((n&&n[f[0]])||0),0);
-const tot=n=>Object.keys(D).reduce((a,d)=>a+dt(n,d),0),sc20=n=>tot(n)/28;
+const tot=n=>Object.keys(D).reduce((a,d)=>a+dt(n,d),0),den=n=>n&&nm(n.ar_fr)?30:29,sc20=n=>tot(n)/den(n);
 const rate=L=>{const d=L.filter(x=>done(x.n));return d.length?d.filter(x=>sc20(x.n)>5).length*100/d.length:null};
 const sp=(s,g)=>rate(s.st.filter(x=>!g||x.sexe==g)),good=(s,g)=>{const p=sp(s,g);return p!=null&&p>50};
 const grp=(L,g)=>{if(!L.some(s=>s.st.some(x=>done(x.n)&&(!g||x.sexe==g))))return null;const Z=g?L.filter(s=>s.st.some(x=>x.sexe==g)):L;return Z.filter(s=>good(s,g)).length*100/Z.length};
@@ -195,7 +198,7 @@ V.home=async()=>{await loadSch();const it=items();
 if(!it.length)return $("#vw").innerHTML=empty("Aucun élève enregistré","Commencez par ajouter les élèves de CM2 de votre école.",`<button class="btn pr" onclick="go('saisie')">${ic("plus")} Ajouter des élèves</button>`,"users");
 const ds=it.filter(x=>done(x.n)),g=it.filter(x=>x.sexe=="G").length,NM=await notesAll(it.map(x=>x.id));
 const ev=Object.keys(NM).sort().map(m=>({l:ms(m),v:rate(it.map(x=>({sexe:x.sexe,n:NM[m][x.id]})))})).filter(p=>p.v!=null);
-const dom=Object.keys(D).map(d=>({l:D[d][0],v:ds.length?avg(ds.map(x=>dt(x.n,d)/D[d][1]*100)):null})),bins=Array(10).fill(0);ds.forEach(x=>bins[Math.min(9,Math.floor(sc20(x.n)))]++);
+const dom=Object.keys(D).map(d=>{const z=d=="AF"?ds.filter(x=>nm(x.n.ar_fr)):ds;return{l:D[d][0],v:z.length?avg(z.map(x=>dt(x.n,d)/D[d][1]*100)):null}}),bins=Array(10).fill(0);ds.forEach(x=>bins[Math.min(9,Math.floor(sc20(x.n)))]++);
 const low=ds.filter(x=>sc20(x.n)<5).sort((a,b)=>sc20(a.n)-sc20(b.n));
 $("#vw").innerHTML=`<div class="kg">${kpi("Effectif total",it.length,`Garçons ${g} · Filles ${it.length-g}`,"users")}${kpi("Saisie de "+ml(MO),`${ds.length}/${it.length}`,ds.length==it.length?"Saisie complète":"Il reste "+(it.length-ds.length)+" élève(s) à saisir","edit")}${kpi("Pourcentage de réussite",bd(rate(it)),`Garçons ${pc(rate(it.filter(x=>x.sexe=="G")))} · Filles ${pc(rate(it.filter(x=>x.sexe=="F")))}`,"chart")}${kpi("Moyenne de la classe",ds.length?f1(avg(ds.map(x=>sc20(x.n))))+" /10":"–","Élèves complets uniquement","trophy")}</div>
 <div class="g2"><div class="card"><h3>Évolution du pourcentage de réussite</h3>${line(ev)}</div><div class="card"><h3>Score par domaine · ${ml(MO)}</h3>${hb(dom)}</div></div>
@@ -215,7 +218,7 @@ function ordered(){const st=items().sort(cmp),all=st.length>0&&st.every(s=>done(
 const dot=n=>done(n)?"ok":F.some(f=>nm(n&&n[f[0]]))?"part":"";
 function drawSchool(){const{st,all}=ordered(),rk=s=>all?1+st.filter(o=>sc20(o.n)>sc20(s.n)).length:"–";
 if(!st.length){$("#tb").innerHTML="";$("#sp").innerHTML="";$("#tb").parentElement.innerHTML=empty("Aucun élève","Ajoutez votre premier élève pour commencer la saisie.",`<button class="btn pr" onclick="addEl()">${ic("plus")} Ajouter un élève</button>`,"users");return}
-let h=`<tr><th>Rang</th><th class="l">Élève</th><th>Sexe</th>`+F.map((f,i)=>`<th>${f[1]}<br>${f[2]}<br>/${f[3]}</th>`+(last(i)?`<th class="tg">Total ${f[1]}<br>/${D[f[1]][1]}</th>`:"")).join("")+`<th>Total /280</th><th>Moy. /10</th><th></th></tr>`;
+let h=`<tr><th>Rang</th><th class="l">Élève</th><th>Sexe</th>`+F.map((f,i)=>`<th>${lb(f[1])}<br>${f[2]}<br>/${f[3]}</th>`+(last(i)?`<th class="tg">Total ${lb(f[1])}<br>/${D[f[1]][1]}</th>`:"")).join("")+`<th>Total /290<br><small>(/300 avec Arabe / Français)</small></th><th>Moy. /10</th><th></th></tr>`;
 st.forEach(s=>{const n=s.n||{};h+=`<tr data-id="${s.id}"><td>${rk(s)}</td><td><span class="dt ${dot(n)}" id="D${s.id}"></span>${fn(s)}</td><td>${s.sexe}</td>`+F.map((f,i)=>`<td><input type="number" class="${nm(n[f[0]])?"fl":"em"}" inputmode="decimal" min="0" max="${f[3]}" step="0.25" data-s="${s.id}" data-k="${f[0]}" data-m="${f[3]}" value="${nm(n[f[0]])?n[f[0]]:""}" aria-label="${f[1]} ${f[2]}"></td>`+(last(i)?`<td class="tg" id="G${s.id}${f[1]}">${f1(dt(n,f[1]))}</td>`:"")).join("")+`<td id="T${s.id}">${f1(tot(n))}</td><td id="V${s.id}"><b>${done(n)?f1(sc20(n)):"–"}</b></td><td><button class="ib sm" title="Supprimer l’élève" onclick="delEl('${s.id}')">${ic("trash",15)}</button></td></tr>`});
 const g=st.filter(s=>s.sexe=="G").length;h+=`<tr class="ft"><td colspan="3">Effectif total : <b>${st.length}</b> · Garçons ${g} · Filles ${st.length-g}</td><td colspan="${F.length+6}"></td></tr>`;$("#tb").innerHTML=h;applyF();foot()}
 function live(id){const n=ST.N[id]||{};Object.keys(D).forEach(d=>{const g=$("#G"+id+d);if(g)g.textContent=f1(dt(n,d))});$("#T"+id).textContent=f1(tot(n));$("#V"+id).innerHTML="<b>"+(done(n)?f1(sc20(n)):"–")+"</b>";$("#D"+id).className="dt "+dot(n)}
@@ -223,7 +226,7 @@ function foot(){const st=items(),ds=st.filter(s=>done(s.n)),c=(g,l,i)=>{const d=
 const e=$("#sp");if(e)e.innerHTML=c("","Total G/F","chart")+c("G","Garçons","users")+c("F","Filles","users")+kpi("Saisie complète",`${ds.length}/${st.length}`,"élèves dont toutes les notes sont saisies","check")}
 function sv(s){const e=$("#sv");if(!e)return;const t=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});e.innerHTML=s=="ing"?"⏳ Enregistrement…":s=="ok"?`<span class="ok">✓ Enregistré à ${t}</span>`:`<span style="color:var(--ko)">⚠ Échec de l’enregistrement – vérifiez la connexion et réessayez</span>`}
 function inp(e){const i=e.target;if(!i.dataset.s)return;let v=i.value===""?null:parseFloat(i.value.replace(",","."));const mx=+i.dataset.m;let bad=false;
-if(v!=null&&(isNaN(v)||v<0)){v=0;i.value=0;bad=true}if(v>mx){v=mx;i.value=mx;bad=true}if(bad){i.classList.add("bd2");toast(`La note maximale est ${mx}.`,"er");setTimeout(()=>i.classList.remove("bd2"),700)}
+if(v!=null&&(isNaN(v)||v<0)){v=0;i.value=0;bad=true}let msg=null;if(v>mx){v=mx;i.value=mx;bad=true}const gp=GR[i.dataset.k];if(v!=null&&gp){const o=ST.N[i.dataset.s]||{},oth=gp.g.filter(k=>k!=i.dataset.k).reduce((a,k)=>a+(nm(o[k])?o[k]:0),0);if(v+oth>gp.m){v=Math.max(0,gp.m-oth);i.value=v;bad=true;msg=`Le total des ressources ${gp.n} ne peut pas dépasser ${gp.m} (il reste ${Math.max(0,gp.m-oth)} à répartir).`}}if(bad){i.classList.add("bd2");toast(msg||`La note maximale est ${mx}.`,"er");setTimeout(()=>i.classList.remove("bd2"),700)}
 i.classList.toggle("fl",v!=null);i.classList.toggle("em",v==null);ST.N[i.dataset.s]={...(ST.N[i.dataset.s]||{}),[i.dataset.k]:v};live(i.dataset.s);foot();sv("ing")}
 async function chgd(e){const i=e.target,id=i.dataset.s;if(!id)return;const k=i.dataset.k,v=ST.N[id]?ST.N[id][k]:null;
 const{error}=await sb.from("notes").upsert({eleve_id:id,mois:MO,numero:1,[k]:v===undefined?null:v},{onConflict:"eleve_id,mois,numero"});
@@ -301,12 +304,12 @@ $("#vw").innerHTML=`<div class="tbr"><div class="sb">${ic("search")}<input place
 function consSel(){const q=FL.cq.toLowerCase(),L=SCH.filter(s=>!q||(s.nom+" "+s.directeur).toLowerCase().includes(q)).sort((a,b)=>a.nom.localeCompare(b.nom,"fr"));if(!L.some(s=>s.id==FL.cs))FL.cs=L[0]?L[0].id:"";$("#cs").innerHTML=L.map(s=>`<option value="${s.id}" ${s.id==FL.cs?"selected":""}>${esc(s.nom)}</option>`).join("");consT()}
 function consRows(){const s=SCH.find(x=>x.id==FL.cs);if(!s)return null;const st=[...s.st],all=st.length&&st.every(x=>done(x.n));all?st.sort((a,b)=>sc20(b.n)-sc20(a.n)||cmp(a,b)):st.sort(cmp);return{s,st,all}}
 function consT(){const r=consRows();if(!r)return $("#ctb").innerHTML=empty("Aucune école","Aucune école validée à consulter.","","school");const{s,st,all}=r,g=st.filter(x=>x.sexe=="G").length;
-$("#ctb").innerHTML=`<div class="kg">${kpi(esc(s.nom),bd(sp(s,"")),esc(s.codec)+" · Directeur : "+esc(s.directeur),"school")}${kpi("Effectif",st.length,`Garçons ${g} · Filles ${st.length-g}`,"users")}${kpi("Saisie",`${st.filter(x=>done(x.n)).length}/${st.length}`,ml(MO),"edit")}</div>${st.length?`<div class="tw"><table><tr><th>Rang</th><th class="l">Élève</th><th>Sexe</th><th>LC /100</th><th>Maths /100</th><th>DM /40</th><th>EDD /40</th><th>Total /280</th><th>Moy. /10</th></tr>${st.map((x,i)=>`<tr><td>${all?1+st.filter(o=>sc20(o.n)>sc20(x.n)).length:"–"}</td><td class="l">${fn(x)}</td><td>${x.sexe}</td>${Object.keys(D).map(d=>`<td>${x.n?f1(dt(x.n,d)):"–"}</td>`).join("")}<td>${x.n?f1(tot(x.n)):"–"}</td><td><b>${done(x.n)?f1(sc20(x.n)):"–"}</b></td></tr>`).join("")}<tr class="ft"><td colspan="3">Effectif total : ${st.length}</td><td colspan="6"></td></tr></table></div>`:empty("Aucun élève","Cette école n’a pas encore enregistré d’élèves.","","users")}`}
-function expCons(){const r=consRows();if(!r)return;csv([["Élève","Sexe","LC","Maths","DM","EDD","Total /280","Moyenne /10"],...r.st.map(x=>[cap(x.prenom)+" "+x.nom.toUpperCase(),x.sexe,...Object.keys(D).map(d=>x.n?dt(x.n,d):""),x.n?tot(x.n):"",done(x.n)?f1(sc20(x.n)):""])],"notes-"+slug(r.s.nom)+"-"+MO+".csv")}
+$("#ctb").innerHTML=`<div class="kg">${kpi(esc(s.nom),bd(sp(s,"")),esc(s.codec)+" · Directeur : "+esc(s.directeur),"school")}${kpi("Effectif",st.length,`Garçons ${g} · Filles ${st.length-g}`,"users")}${kpi("Saisie",`${st.filter(x=>done(x.n)).length}/${st.length}`,ml(MO),"edit")}</div>${st.length?`<div class="tw"><table><tr><th>Rang</th><th class="l">Élève</th><th>Sexe</th>${Object.keys(D).map(d=>`<th>${lb(d)} /${D[d][1]}</th>`).join("")}<th>Total /290 (/300)</th><th>Moy. /10</th></tr>${st.map((x,i)=>`<tr><td>${all?1+st.filter(o=>sc20(o.n)>sc20(x.n)).length:"–"}</td><td class="l">${fn(x)}</td><td>${x.sexe}</td>${Object.keys(D).map(d=>`<td>${x.n?f1(dt(x.n,d)):"–"}</td>`).join("")}<td>${x.n?f1(tot(x.n)):"–"}</td><td><b>${done(x.n)?f1(sc20(x.n)):"–"}</b></td></tr>`).join("")}<tr class="ft"><td colspan="3">Effectif total : ${st.length}</td><td colspan="8"></td></tr></table></div>`:empty("Aucun élève","Cette école n’a pas encore enregistré d’élèves.","","users")}`}
+function expCons(){const r=consRows();if(!r)return;csv([["Élève","Sexe",...Object.keys(D).map(lb),"Total /290 (300 avec Arabe / Français)","Moyenne /10"],...r.st.map(x=>[cap(x.prenom)+" "+x.nom.toUpperCase(),x.sexe,...Object.keys(D).map(d=>x.n?dt(x.n,d):""),x.n?tot(x.n):"",done(x.n)?f1(sc20(x.n)):""])],"notes-"+slug(r.s.nom)+"-"+MO+".csv")}
 
 /* ===== ADMINISTRATION : fiche d'une école ===== */
 async function openSch(id){const s=SCH.find(x=>x.id==id);if(!s)return;const ds=s.st.filter(x=>done(x.n)),low=ds.filter(x=>sc20(x.n)<5),al=[],g=s.st.filter(x=>x.sexe=="G").length;
-Object.keys(D).forEach(d=>{if(ds.length){const v=avg(ds.map(x=>dt(x.n,d)/D[d][1]*100));if(v<50)al.push(`${D[d][0]} : score de ${Math.round(v)} % (sous 50 %). Piste : ${SOL[d]}`)}});
+Object.keys(D).forEach(d=>{const z=d=="AF"?ds.filter(x=>nm(x.n.ar_fr)):ds;if(z.length){const v=avg(z.map(x=>dt(x.n,d)/D[d][1]*100));if(v<50)al.push(`${D[d][0]} : score de ${Math.round(v)} % (sous 50 %). Piste : ${SOL[d]}`)}});
 if(low.length)al.push(`${low.length} élève(s) sous 5/10 : ${low.map(fn).join(", ")}. Piste : soutien individualisé et suivi hebdomadaire.`);
 const rk=[...ds].sort((a,b)=>sc20(b.n)-sc20(a.n)),d=document.createElement("div");d.className="dr";d.id="drw";d.onclick=e=>{if(e.target==d)d.remove()};
 d.innerHTML=`<div class="dp"><div class="tbr" style="justify-content:space-between"><div><h2>${esc(s.nom)}</h2><span class="mu">${esc(s.codec)} · Directeur : ${esc(s.directeur)}</span></div><button class="btn" onclick="this.closest('.dr').remove()">${ic("x",16)} Fermer</button></div>
