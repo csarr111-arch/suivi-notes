@@ -112,6 +112,48 @@ body{font-family:Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.15px}
 @media(max-width:1100px){.kg{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:860px){.app{grid-template-columns:1fr}#vw{padding:17px 12px 95px}.kg{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.dash-head h2{font-size:22px}.dash-banner{padding:18px}.dash-banner strong{font-size:19px}.dash-banner-mark{font-size:35px}.kc{padding:13px 10px;gap:9px;min-height:100px}.kc b{font-size:22px}.g2{grid-template-columns:1fr}}
 @media(max-width:380px){.kg{grid-template-columns:1fr 1fr}.kc b{font-size:19px}}
+
+/* ===== CONFORT MOBILE ET LECTURE DES TABLEAUX ===== */
+@media(max-width:860px){
+  body{font-size:15px}
+  #vw{padding:14px 10px 104px}
+  .card{padding:14px;margin-bottom:12px}
+  .dash-head{margin-bottom:16px}
+  .dash-head h2{line-height:1.2}
+  .dash-head p,.mu{line-height:1.45}
+  .tbr{margin-bottom:10px}
+  .tw{max-height:none;overflow-x:auto;overflow-y:visible;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+  .tw:has(> #tb)::before{content:"↔ Faites glisser le tableau horizontalement pour voir toutes les matières";display:block;padding:8px 12px;background:var(--al);color:var(--ac);font-size:12px;font-weight:650;position:sticky;left:0;width:max-content;max-width:100%}
+  #tb{min-width:760px}
+  #tb th,#tb td{padding:8px 9px}
+  #tb td:nth-child(2),#tb th:nth-child(2){min-width:158px;max-width:158px;overflow:hidden;text-overflow:ellipsis}
+  #tb td input{width:58px;min-height:42px;font-size:16px}
+  .tw table.mobile-cards{display:block;width:100%;font-size:14px;border-spacing:0}
+  .tw table.mobile-cards tbody{display:block;width:100%}
+  .tw table.mobile-cards tr{display:block;margin:0 0 10px;padding:5px 10px;background:var(--sf);border:1px solid var(--bd);border-radius:12px;box-shadow:0 2px 8px rgba(15,50,35,.045)}
+  .tw table.mobile-cards tr:first-child:has(th){display:none}
+  .tw table.mobile-cards td{display:grid;grid-template-columns:minmax(104px,38%) minmax(0,1fr);align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid var(--bd);white-space:normal;text-align:right;overflow-wrap:anywhere;background:transparent}
+  .tw table.mobile-cards td:last-child{border-bottom:0}
+  .tw table.mobile-cards td::before{content:attr(data-label);font-size:11px;line-height:1.3;font-weight:750;color:var(--mu);text-align:left;text-transform:uppercase;letter-spacing:.025em}
+  .tw table.mobile-cards td[colspan]{display:block;text-align:left}
+  .tw table.mobile-cards td[colspan]::before{content:none}
+  .tw table.mobile-cards td .btn,.tw table.mobile-cards td button{justify-self:end}
+  .tw:has(table.mobile-cards){overflow:visible;background:transparent;border:0;box-shadow:none;border-radius:0}
+  .tw:has(table.mobile-cards) table.mobile-cards{min-width:0}
+  #st table.mobile-cards,#et table.mobile-cards{min-width:0}
+  .g2 .card{padding:15px}
+  .hr{grid-template-columns:minmax(70px,32%) minmax(0,1fr) 48px;gap:7px;font-size:12px}
+  .lc text{font-size:9px}
+  .bn{padding-left:4px;padding-right:4px}
+  .bn button{flex:1 0 64px;font-size:10px}
+}
+@media(max-width:380px){
+  .tw table.mobile-cards td{grid-template-columns:minmax(92px,36%) minmax(0,1fr);gap:6px;padding:7px 1px}
+  .tw table.mobile-cards td::before{font-size:10px}
+  #tb{min-width:720px}
+  .dash-banner{gap:8px}
+}
+
 </style></head><body><div id="app"></div><div id="ts"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
 <script>
@@ -146,6 +188,21 @@ const ic=(n,s=18)=>`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 2
 /* ===== Outils ===== */
 const $=s=>document.querySelector(s),esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const app=h=>{$("#app").innerHTML=h};
+
+/* ===== Adaptation automatique des tableaux en cartes sur téléphone ===== */
+const mobileTableObserver=new MutationObserver(()=>{
+  document.querySelectorAll("#vw table:not(#tb):not(.mobile-cards)").forEach(t=>{
+    const headers=[...t.querySelectorAll("tr:first-child th")].map(th=>th.textContent.trim());
+    if(!headers.length)return;
+    t.classList.add("mobile-cards");
+    t.querySelectorAll("tr").forEach(tr=>{
+      const cells=[...tr.querySelectorAll(":scope > td")];
+      cells.forEach((td,i)=>{if(headers[i]&&!td.hasAttribute("colspan"))td.dataset.label=headers[i]});
+    });
+  });
+});
+mobileTableObserver.observe(document.querySelector("#app"),{childList:true,subtree:true});
+
 const nm=v=>typeof v==="number"&&!isNaN(v),last=i=>(!F[i+1]||F[i+1][1]!=F[i][1])&&F.filter(f=>f[1]==F[i][1]).length>1;
 const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
 const f1=v=>v==null?"–":(Math.round(v*10)/10).toString().replace(".",","),pc=v=>v==null?"–":f1(v)+" %";
