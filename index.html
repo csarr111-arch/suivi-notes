@@ -128,16 +128,16 @@ body{font-family:Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.15px}
   #tb th,#tb td{padding:8px 9px}
   #tb td:nth-child(2),#tb th:nth-child(2){min-width:158px;max-width:158px;overflow:hidden;text-overflow:ellipsis}
   #tb td input{width:58px;min-height:42px;font-size:16px}
-  .tw table.mobile-cards{display:block;width:100%;font-size:14px;border-spacing:0}
-  .tw table.mobile-cards tbody{display:block;width:100%}
-  .tw table.mobile-cards tr{display:block;margin:0 0 10px;padding:5px 10px;background:var(--sf);border:1px solid var(--bd);border-radius:12px;box-shadow:0 2px 8px rgba(15,50,35,.045)}
-  .tw table.mobile-cards tr:first-child:has(th){display:none}
-  .tw table.mobile-cards td{display:grid;grid-template-columns:minmax(104px,38%) minmax(0,1fr);align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid var(--bd);white-space:normal;text-align:right;overflow-wrap:anywhere;background:transparent}
-  .tw table.mobile-cards td:last-child{border-bottom:0}
-  .tw table.mobile-cards td::before{content:attr(data-label);font-size:11px;line-height:1.3;font-weight:750;color:var(--mu);text-align:left;text-transform:uppercase;letter-spacing:.025em}
-  .tw table.mobile-cards td[colspan]{display:block;text-align:left}
-  .tw table.mobile-cards td[colspan]::before{content:none}
-  .tw table.mobile-cards td .btn,.tw table.mobile-cards td button{justify-self:end}
+  table.mobile-cards{display:block;width:100%;font-size:14px;border-spacing:0}
+  table.mobile-cards tbody{display:block;width:100%}
+  table.mobile-cards tr{display:block;margin:0 0 10px;padding:5px 10px;background:var(--sf);border:1px solid var(--bd);border-radius:12px;box-shadow:0 2px 8px rgba(15,50,35,.045)}
+  table.mobile-cards tr:first-child:has(th){display:none}
+  table.mobile-cards td{display:grid;grid-template-columns:minmax(104px,38%) minmax(0,1fr);align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid var(--bd);white-space:normal;text-align:right;overflow-wrap:anywhere;background:transparent}
+  table.mobile-cards td:last-child{border-bottom:0}
+  table.mobile-cards td::before{content:attr(data-label);font-size:11px;line-height:1.3;font-weight:750;color:var(--mu);text-align:left;text-transform:uppercase;letter-spacing:.025em}
+  table.mobile-cards td[colspan]{display:block;text-align:left}
+  table.mobile-cards td[colspan]::before{content:none}
+  table.mobile-cards td .btn,table.mobile-cards td button{justify-self:end}
   .tw:has(table.mobile-cards){overflow:visible;background:transparent;border:0;box-shadow:none;border-radius:0}
   .tw:has(table.mobile-cards) table.mobile-cards{min-width:0}
   #st table.mobile-cards,#et table.mobile-cards{min-width:0}
@@ -148,8 +148,8 @@ body{font-family:Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.15px}
   .bn button{flex:1 0 64px;font-size:10px}
 }
 @media(max-width:380px){
-  .tw table.mobile-cards td{grid-template-columns:minmax(92px,36%) minmax(0,1fr);gap:6px;padding:7px 1px}
-  .tw table.mobile-cards td::before{font-size:10px}
+  table.mobile-cards td{grid-template-columns:minmax(92px,36%) minmax(0,1fr);gap:6px;padding:7px 1px}
+  table.mobile-cards td::before{font-size:10px}
   #tb{min-width:720px}
   .dash-banner{gap:8px}
 }
