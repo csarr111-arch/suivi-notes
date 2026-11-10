@@ -79,6 +79,39 @@ td input[type=number]{width:66px;min-height:40px;text-align:center}
 .bn{padding-bottom:env(safe-area-inset-bottom)}.kg{grid-template-columns:1fr 1fr}.dp{width:100%;max-width:100%}
 .nd>summary{padding:14px}.lf{padding:12px 10px}
 }
+/* ===== REFONTE VISUELLE PHASE 1 ===== */
+:root{--rd:18px;--sh:0 5px 24px rgba(16,55,35,.07)}
+body{font-family:Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.15px}
+.app{grid-template-columns:265px minmax(0,1fr)}
+.side{background:linear-gradient(160deg,#073b27 0%,#0d6340 65%,#08764b 100%);padding:24px 16px;box-shadow:4px 0 25px rgba(0,0,0,.08)}
+.brand{padding:8px 10px 28px}.brand b{font-size:17px;letter-spacing:-.4px}
+.side button{padding:13px 14px;border-radius:12px;margin:2px 0;transition:all .2s ease}
+.side button.on{background:#fff;color:#087345;box-shadow:0 4px 15px rgba(0,0,0,.12)}
+.side button:hover:not(.on){background:rgba(255,255,255,.13);transform:translateX(3px)}
+.top{padding:16px 28px;min-height:78px;background:var(--sf);border-bottom:1px solid var(--bd)}
+.top h1{font-size:21px;font-weight:750}
+#vw{max-width:1500px;padding:28px}
+.card,.kc{border-radius:17px;box-shadow:var(--sh);transition:box-shadow .2s}
+.card:hover,.kc:hover{box-shadow:0 9px 28px rgba(16,55,35,.10)}
+.kg{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.kc{padding:20px;min-height:112px;gap:15px}
+.kc .ki{border-radius:14px;padding:13px}
+.kc b{font-size:27px;font-weight:800;letter-spacing:-1px}
+.g2{gap:18px;margin-bottom:18px}.g2 .card{padding:22px}
+.card h3{font-size:15px;font-weight:750;margin-bottom:18px}
+.pill{padding:5px 11px}.btn{border-radius:11px;padding:10px 15px}
+.tw{border-radius:15px}.who{padding:5px 12px 5px 5px}
+.dash-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.dash-eyebrow{color:var(--ac);font-size:11px;font-weight:800;letter-spacing:1.5px}
+.dash-head h2{font-size:26px;font-weight:800;margin:5px 0}
+.dash-head p{color:var(--mu);font-size:13px;margin:0}
+.dash-actions{display:flex;gap:9px;flex-wrap:wrap}
+.dash-banner{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:23px 26px;margin-bottom:20px;border-radius:18px;color:white;background:linear-gradient(115deg,#075333,#108553);box-shadow:0 8px 25px rgba(7,83,51,.17)}
+.dash-banner strong{display:block;font-size:23px;margin:5px 0}
+.dash-banner small{opacity:.85}.dash-banner-mark{font-size:48px;opacity:.7}
+@media(max-width:1100px){.kg{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:860px){.app{grid-template-columns:1fr}#vw{padding:17px 12px 95px}.kg{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.dash-head h2{font-size:22px}.dash-banner{padding:18px}.dash-banner strong{font-size:19px}.dash-banner-mark{font-size:35px}.kc{padding:13px 10px;gap:9px;min-height:100px}.kc b{font-size:22px}.g2{grid-template-columns:1fr}}
+@media(max-width:380px){.kg{grid-template-columns:1fr 1fr}.kc b{font-size:19px}}
 </style></head><body><div id="app"></div><div id="ts"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
 <script>
@@ -233,7 +266,7 @@ const ds=it.filter(x=>done(x.n)),g=it.filter(x=>x.sexe=="G").length,NM=await not
 const ev=Object.keys(NM).sort().map(m=>({l:ms(m),v:rate(it.map(x=>({sexe:x.sexe,n:NM[m][x.id]})))})).filter(p=>p.v!=null);
 const dom=Object.keys(D).map(d=>{const z=d=="AF"?ds.filter(x=>nm(x.n.ar_fr)):ds;return{l:D[d][0],v:z.length?avg(z.map(x=>dt(x.n,d)/D[d][1]*100)):null}}),bins=Array(10).fill(0);ds.forEach(x=>bins[Math.min(9,Math.floor(sc20(x.n)))]++);
 const low=ds.filter(x=>sc20(x.n)<5).sort((a,b)=>sc20(a.n)-sc20(b.n));
-$("#vw").innerHTML=`<div class="kg">${kpi("Effectif total",it.length,`Garçons ${g} · Filles ${it.length-g}`,"users")}${kpi("Saisie de "+ml(MO),`${ds.length}/${it.length}`,ds.length==it.length?"Saisie complète":"Il reste "+(it.length-ds.length)+" élève(s) à saisir","edit")}${kpi("Pourcentage de réussite",bd(rate(it)),`Garçons ${pc(rate(it.filter(x=>x.sexe=="G")))} · Filles ${pc(rate(it.filter(x=>x.sexe=="F")))}`,"chart")}${kpi("Moyenne de la classe",ds.length?f1(avg(ds.map(x=>sc20(x.n))))+" /10":"–","Élèves complets uniquement","trophy")}</div>
+$("#vw").innerHTML=`<div class="dash-head"><div><span class="dash-eyebrow">ESPACE ÉCOLE · CM2</span><h2>Tableau de bord</h2><p>Vue générale des résultats et du suivi des élèves.</p></div><div class="dash-actions"><button class="btn pr" onclick="go('saisie')">${ic("edit")} Saisir les notes</button><button class="btn" onclick="go('res')">${ic("chart")} Résultats</button></div></div><div class="dash-banner"><div><small>TABLEAU DE BORD · PÉRIODE ACTUELLE</small><strong>${ml(MO)}</strong><small>${esc(E.nom)} · IEF de Tivaouane</small></div><div class="dash-banner-mark">${ic("school",42)}</div></div><div class="kg">${kpi("Effectif total",it.length,`Garçons ${g} · Filles ${it.length-g}`,"users")}${kpi("Saisie de "+ml(MO),`${ds.length}/${it.length}`,ds.length==it.length?"Saisie complète":"Il reste "+(it.length-ds.length)+" élève(s) à saisir","edit")}${kpi("Pourcentage de réussite",bd(rate(it)),`Garçons ${pc(rate(it.filter(x=>x.sexe=="G")))} · Filles ${pc(rate(it.filter(x=>x.sexe=="F")))}`,"chart")}${kpi("Moyenne de la classe",ds.length?f1(avg(ds.map(x=>sc20(x.n))))+" /10":"–","Élèves complets uniquement","trophy")}</div>
 <div class="g2"><div class="card"><h3>Évolution du pourcentage de réussite</h3>${line(ev)}</div><div class="card"><h3>Score par domaine · ${ml(MO)}</h3>${hb(dom)}</div></div>
 <div class="g2"><div class="card"><h3>Répartition des moyennes</h3>${ds.length?histo(bins):`<p class="mu">Disponible dès que des élèves sont complets.</p>`}</div><div class="card"><h3>Élèves en difficulté (moyenne sous 5/10)</h3>${low.length?low.map(x=>`<div class="al2" style="cursor:default"><span class="pill r">${f1(sc20(x.n))}</span><div><b>${fn(x)}</b><br><span class="mu">Piste : ${pisteEl(x.n)}</span></div></div>`).join(""):`<p class="mu">${ds.length?"Aucun élève sous la moyenne.":"Aucune donnée pour ce mois."}</p>`}</div></div>`};
 
@@ -339,7 +372,7 @@ const r=await modal({t:"Notifications",w:480,b:`${pri()&&PEND?`<div class="bn2" 
 /* ===== ADMINISTRATION : vue générale ===== */
 V.ov=async()=>{await loadRes();updBell();const L=SCH;if(!L.length)return $("#vw").innerHTML=(pri()&&PEND?`<div class="bn2"><span>${PEND} inscription(s) en attente</span><button class="btn sm" onclick="go('ge')">Examiner</button></div>`:"")+empty("Aucune école validée pour le moment","Les écoles apparaîtront ici dès que leur inscription sera validée.",pri()?`<button class="btn pr" onclick="go('ge')">Gérer les écoles</button>`:"","school");
 const A=L.flatMap(s=>s.st),dn=A.filter(x=>done(x.n)).length,eg=A.filter(x=>x.sexe=="G").length,gv=L.filter(s=>good(s,"")).length,rd=L.filter(s=>sp(s,"")!=null&&!good(s,"")).length,nd=L.length-gv-rd,C=codecs(L),al=alerts();
-$("#vw").innerHTML=`${pri()&&PW?`<div class="bn2"><span>${ic("key",16)} ${PW} demande(s) de mot de passe oublié</span><button class="btn sm" onclick="go('ge')">Traiter</button></div>`:""}${pri()&&PEND?`<div class="bn2"><span>${ic("bell",16)} ${PEND} inscription(s) en attente de validation</span><button class="btn sm" onclick="go('ge')">Examiner</button></div>`:""}
+$("#vw").innerHTML=`<div class="dash-head"><div><span class="dash-eyebrow">ADMINISTRATION · IEF TIVAOUANE</span><h2>Tableau de bord général</h2><p>Vue consolidée des performances des écoles.</p></div><div class="dash-actions"><button class="btn" onclick="go('ecr')">${ic("school")} Écoles</button><button class="btn" onclick="go('al')">${ic("bell")} Alertes (${al.length})</button></div></div><div class="dash-banner"><div><small>SYNTHÈSE DES PERFORMANCES</small><strong>${ml(MO)}</strong><small>${L.length} écoles validées · ${A.length} élèves</small></div><div class="dash-banner-mark">${ic("layers",42)}</div></div>${pri()&&PW?`<div class="bn2"><span>${ic("key",16)} ${PW} demande(s) de mot de passe oublié</span><button class="btn sm" onclick="go('ge')">Traiter</button></div>`:""}${pri()&&PEND?`<div class="bn2"><span>${ic("bell",16)} ${PEND} inscription(s) en attente de validation</span><button class="btn sm" onclick="go('ge')">Examiner</button></div>`:""}
 <div class="kg">${kpi("Pourcentage de l’IEF",bd(grp(L,"")),`Garçons ${pc(grp(L,"G"))} · Filles ${pc(grp(L,"F"))}`,"chart")}${kpi("Écoles validées",L.length,`${gv} à plus de 50 % · ${rd} à 50 % ou moins`,"school")}${kpi("Effectif total",A.length,`Garçons ${eg} · Filles ${A.length-eg}`,"users")}${kpi("Saisie de "+ml(MO),`${dn}/${A.length}`,prog(dn,A.length),"edit")}</div>
 <div class="g2"><div class="card"><h3>Répartition des écoles</h3>${donut([{l:"Plus de 50 %",v:gv,c:"var(--ok)"},{l:"50 % ou moins",v:rd,c:"var(--ko)"},{l:"Sans saisie complète",v:nd,c:"var(--bd)"}])}</div>${DS.length?`<div class="card"><h3>Pourcentage par district</h3>${hb(DS.map(d=>({l:esc(d.nom),t:d.nom,v:grp(L.filter(s=>s.district_id==d.id),"")})).sort((a,b)=>(b.v??-1)-(a.v??-1)))}</div>`:""}<div class="card"><h3>Pourcentage par CODEC</h3>${hb(C.map(c=>({l:esc(c.k),t:c.k,v:c.p})))}</div></div>
 <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">Écoles à surveiller</h3><button class="btn sm" onclick="go('al')">Tout voir (${al.length})</button></div>${al.slice(0,5).map(a=>alRow(a)).join("")||`<p class="mu">Aucune école à surveiller ce mois-ci.</p>`}</div>`};
