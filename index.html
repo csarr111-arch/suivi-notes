@@ -157,7 +157,7 @@ body{font-family:Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.15px}
   .dash-banner{gap:8px}
 }
 
-</style></head><body><div id="app"></div><div id="ts"></div>
+.af{position:relative}.cp{text-align:center;font-size:12px;color:var(--mu);padding:4px 22px 28px}.cp.cpa{position:absolute;left:0;right:0;bottom:12px;padding:0}@media(max-width:860px){#vw{padding-bottom:16px}.cp{padding-bottom:84px}.cp.cpa{padding-bottom:0}}</style></head><body><div id="app"></div><div id="ts"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
 <script>
 /* ===== Configuration ===== */
@@ -197,6 +197,7 @@ const ic=(n,s=18)=>`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 2
 
 /* ===== Outils ===== */
 const $=s=>document.querySelector(s),esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const CP="Copyright © IEF TIVAOUANE.";
 const app=h=>{$("#app").innerHTML=h};
 
 /* ===== Adaptation automatique des tableaux en cartes sur téléphone ===== */
@@ -276,7 +277,7 @@ let ME,P,E,MO=DM0,CURV="",ST={el:[],N:{},M:{}},SCH=[],CD=[],INS=[],DS=[],PEND=0,
 const pri=()=>P&&P.role=="principal",isE=()=>P&&P.role=="ecole";
 
 /* ===== Authentification ===== */
-const authBox=h=>app(`<div class="auth"><div class="ah">${ic("book",44)}<h1>Suivi des notes CM2</h1><p>Inspection de l’Éducation et de la Formation (IEF) de Tivaouane. Saisie mensuelle des notes, classements et suivi des résultats.</p></div><div class="af"><div class="ab">${h}</div></div></div>`);
+const authBox=h=>app(`<div class="auth"><div class="ah">${ic("book",44)}<h1>Suivi des notes CM2</h1><p>Inspection de l’Éducation et de la Formation (IEF) de Tivaouane. Saisie mensuelle des notes, classements et suivi des résultats.</p></div><div class="af"><div class="ab">${h}</div><div class="cp cpa">${CP}</div></div></div>`);
 function showLogin(m=""){authBox(`<h2>Connexion</h2><span class="mu">Entrez vos identifiants</span><input id="lg" placeholder="Numéro WhatsApp" autocomplete="username"><input id="pw" type="password" placeholder="Mot de passe" autocomplete="current-password" onkeydown="if(event.key=='Enter')login()"><button class="btn pr" style="justify-content:center;padding:11px" onclick="login()">Se connecter</button><p class="err" id="m">${m}</p><a href="#" onclick="showForgot();return false">Mot de passe oublié ?</a><a href="#" onclick="showReg();return false">Inscrire mon école</a>`)}
 async function login(){const b=$(".btn.pr");b.disabled=true;const{error}=await sb.auth.signInWithPassword({email:mail($("#lg").value),password:$("#pw").value});if(error){b.disabled=false;return $("#m").textContent="Identifiant ou mot de passe incorrect."}boot()}
 function showForgot(){authBox(`<h2>Mot de passe oublié</h2><span class="mu">Saisissez le numéro WhatsApp utilisé lors de l’inscription de votre école.</span><input id="ft" type="tel" inputmode="tel" autocomplete="tel" placeholder="Numéro WhatsApp" onkeydown="if(event.key=='Enter')forgot()"><button class="btn pr" style="justify-content:center;padding:11px" onclick="forgot()">Envoyer la demande</button><p class="err" id="m"></p><a href="#" onclick="showLogin();return false">Retour à la connexion</a>`)}
@@ -313,7 +314,7 @@ const TT={home:"Accueil",saisie:"Saisie des notes",res:"Résultats du CODEC",ov:
 const NAV=()=>isE()?[["home","Accueil","home"],["saisie","Saisie","edit"],["res","Résultats","trophy"]]:[["ov","Vue générale","home"],["ecr","Résultats des écoles","school"],["clas","Classement des écoles","trophy"],...(MI?[["mydist","MON DISTRICT","folder"]]:[]),["districts","DISTRICTS DE L’IEF","layers"],["al","Alertes","alert"],["cons","Consultation","folder"],...(pri()?[["ge","Gestion des écoles","settings"],["ga","Administrateurs","shield"]]:[])];
 function shell(){const nv=NAV(),ini=(isE()?E.nom:P.login).trim().slice(0,2).toUpperCase(),nom=isE()?E.nom:(pri()?"Administrateur principal":P.login);
 app(`<div class="app"><aside class="side"><div class="brand">${ic("book",22)}<div><b>Suivi des notes</b><span>CM2 · IEF de Tivaouane</span></div></div>${nv.map(n=>`<button data-v="${n[0]}" onclick="go('${n[0]}')">${ic(n[2])}<span>${n[1]}</span></button>`).join("")}<div style="flex:1"></div><hr><button onclick="out()">${ic("logout")}<span>Déconnexion</span></button></aside>
-<div class="main"><header class="top"><div><h1 id="pt"></h1><span class="mu">${isE()?esc(String(E.nom).toUpperCase()):"IEF TIVAOUANE"}</span></div><div class="tr"><div class="stp" id="stp"></div><button class="ib" title="Notifications" onclick="bellM()">${ic("bell")}<span class="bdg hide" id="bb"></span></button><button class="ib" id="thb" title="Mode clair / sombre" onclick="tgl()">${ic(document.documentElement.dataset.theme=="dark"?"sun":"moon")}</button><div class="who"><i>${esc(ini)}</i><span><b>${esc(nom)}</b><br><small class="mu">${isE()?"École":pri()?"Principal":"Lecture seule"}</small></span></div><button class="ib" title="Déconnexion" onclick="out()">${ic("logout")}</button></div></header><main id="vw"></main></div>
+<div class="main"><header class="top"><div><h1 id="pt"></h1><span class="mu">${isE()?esc(String(E.nom).toUpperCase()):"IEF TIVAOUANE"}</span></div><div class="tr"><div class="stp" id="stp"></div><button class="ib" title="Notifications" onclick="bellM()">${ic("bell")}<span class="bdg hide" id="bb"></span></button><button class="ib" id="thb" title="Mode clair / sombre" onclick="tgl()">${ic(document.documentElement.dataset.theme=="dark"?"sun":"moon")}</button><div class="who"><i>${esc(ini)}</i><span><b>${esc(nom)}</b><br><small class="mu">${isE()?"École":pri()?"Principal":"Lecture seule"}</small></span></div><button class="ib" title="Déconnexion" onclick="out()">${ic("logout")}</button></div></header><main id="vw"></main><footer class="cp">${CP}</footer></div>
 <nav class="bn">${nv.map(n=>`<button data-v="${n[0]}" onclick="go('${n[0]}')">${ic(n[2],20)}<span>${n[1].split(" ")[0]}</span></button>`).join("")}</nav></div>`);if(!isE())setTimeout(bellLoad,2500)}
 const stp=()=>`<button class="ib sm" onclick="stepM(-1)" ${MO==MOIS[0]?"disabled":""}>${ic("l",16)}</button><select id="mo" onchange="setM(this.value)">${MOIS.map(m=>`<option value="${m}" ${m==MO?"selected":""}>${ml(m)}</option>`).join("")}</select><button class="ib sm" onclick="stepM(1)" ${MO==MOIS[MOIS.length-1]?"disabled":""}>${ic("r",16)}</button>`;
 const stepM=d=>{const i=MOIS.indexOf(MO)+d;if(MOIS[i])setM(MOIS[i])};const setM=m=>{MO=m;go(CURV)};
@@ -407,7 +408,7 @@ const needP=async()=>{await LJ("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5
 const pt=t=>String(t??"").replace(/[’‘]/g,"'").replace(/[“”]/g,'"').replace(/[–—]/g,"-").replace(/…/g,"...");
 const rgb=h=>[0,2,4].map(i=>parseInt(h.slice(i,i+2),16));
 async function dlPdf(name,land,draw){await needP();const doc=new window.jspdf.jsPDF({orientation:land?"landscape":"portrait",unit:"mm",format:"a4"});draw(doc);
-const n=doc.getNumberOfPages(),W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(110);doc.text("Page "+i+"/"+n,W/2,H-6,{align:"center"})}
+const n=doc.getNumberOfPages(),W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();for(let i=1;i<=n;i++){doc.setPage(i);doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(110);doc.text(pt(CP),W/2,H-10,{align:"center"});doc.text("Page "+i+"/"+n,W/2,H-6,{align:"center"})}
 doc.save(name)}
 const pTx=(doc,t,x,y,o={})=>{doc.setFont("helvetica",o.b?"bold":"normal");doc.setFontSize(o.s||10);doc.setTextColor(20);doc.text(pt(t),x,y,{align:o.c?"center":"left",maxWidth:o.mw})};
 async function ficheM(){const r=await modal({t:"Exporter (PDF)",b:`<p class="mu">Documents PDF non modifiables, prêts à imprimer.</p><label style="color:var(--tx)"><input type="radio" name="fm" value="n" checked style="width:auto;margin-right:8px">Fiche de notes de ${ml(MO)}</label><label style="color:var(--tx)"><input type="radio" name="fm" value="r" style="width:auto;margin-right:8px">Fiche de réussite de ${ml(MO)} (élèves admis par ordre de mérite)</label>`,ok:"Générer",val:m=>m.querySelector("input[name=fm]:checked").value});if(!r)return;
