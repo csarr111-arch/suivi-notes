@@ -180,6 +180,59 @@ body{font-family:Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.15px}
   #vw{padding-bottom:20px}
   .cp{padding-bottom:18px}
 }
+
+/* ===== Ajustements STRICTEMENT réservés aux petits écrans ===== */
+@media(max-width:600px){
+  .top{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:7px 10px;
+    padding:9px 10px;
+  }
+  .top-title{
+    flex:1 1 100%;
+    min-width:0;
+    gap:9px;
+  }
+  .top-title>div{min-width:0}
+  .top-title h1{
+    font-size:15px;
+    line-height:1.2;
+    margin:0;
+  }
+  .tr{
+    display:flex;
+    flex:1 1 100%;
+    min-width:0;
+    flex-wrap:nowrap;
+    align-items:center;
+    justify-content:flex-end;
+    gap:5px;
+  }
+  .stp{
+    display:flex;
+    flex:1 1 auto;
+    min-width:0;
+    justify-content:flex-end;
+    align-items:center;
+    gap:3px;
+  }
+  .stp>button{display:none!important}
+  .stp select{
+    width:auto;
+    max-width:145px;
+    min-width:0;
+    height:36px;
+    padding:4px 7px;
+    font-size:12px!important;
+    line-height:1.1;
+  }
+  #thb{display:none!important}
+  .who span{display:none!important}
+  .who{flex:none}
+  .tr>.ib{flex:none;min-width:36px;width:36px;padding:5px}
+}
 </style></head><body><div id="app"></div><div id="ts"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
 <script>
