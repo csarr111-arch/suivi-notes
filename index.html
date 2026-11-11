@@ -551,7 +551,7 @@ if(!n)r.push(["wr","Aucun élève enregistré"]);else if(!ds)r.push(["wr","Aucun
 SUBJ.forEach(([d])=>{const v=subjPct(s.st,"n",d);if(v!=null&&v<50)r.push(["wr",`${D[d][0]} : ${f1(v)} % des élèves ont 50/100 ou plus (sous 50 %)`,trend(v,subjPct(s.st,"pn",d))])});
 return{s,r}}).filter(a=>a.r.length).sort((a,b)=>b.r.filter(x=>x[0]=="ko").length-a.r.filter(x=>x[0]=="ko").length||a.s.nom.localeCompare(b.s.nom,"fr"))}
 async function bellLoad(){try{await loadRes();updBell()}catch(e){}}
-function updBell(){const n=alerts().length+(pri()?PEND+PW:0),b=$("#bb");if(b){b.textContent=n;b.classList.toggle("hide",!n)}}
+function updBell(){const n=alerts().length+(pri()?PEND+PW:0);["#bb","#bb-menu"].forEach(q=>{const b=$(q);if(b){b.textContent=n;b.classList.toggle("hide",!n)}})}
 async function bellM(){if(isE())return modal({t:"Notifications",b:"<p>Aucune notification.</p>",no:false,ok:"Fermer",val:()=>true});try{await loadRes()}catch(e){}const A=alerts();
 const r=await modal({t:"Notifications",w:480,b:`${pri()&&PEND?`<div class="bn2" style="margin:8px 0">${PEND} inscription(s) en attente de validation</div>`:""}${pri()&&PW?`<div class="bn2" style="margin:8px 0">${PW} demande(s) de mot de passe oublié</div>`:""}<p><b>${A.length}</b> école(s) à surveiller pour ${ml(MO)}.</p>`,no:"Fermer",ok:pri()&&(PEND||PW)?"Ouvrir la gestion des écoles":"Voir les alertes",val:()=>pri()&&(PEND||PW)?"ge":"al"});if(r)go(r)}
 
