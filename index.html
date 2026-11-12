@@ -504,7 +504,7 @@ const dash=y=>{doc.setDrawColor(20);doc.setLineWidth(0.2);doc.setLineDashPattern
 pTx(doc,"MINISTÈRE DE L'EDUCATION NATIONALE",14,46,{b:1,s:8.5});dash(48.5);
 pTx(doc,"INSPECTION D'ACADÉMIE DE THIÈS",14,52.5,{s:8.5});dash(55);
 pTx(doc,"INSPECTION DE L'EDUCATION ET DE LA FORMATION DE TIVAOUANE",14,59,{b:1,s:8.5});dash(61.5)}
-function pdfEntete(doc,titre,y0){pdfHead(doc);const W=doc.internal.pageSize.getWidth();pTx(doc,titre,W/2,y0,{b:1,s:16,c:1});pTx(doc,"École : "+E.nom+"  ·  CODEC : "+(E.codecs&&E.codecs.nom||"–")+"  ·  Directeur : "+(E.directeur||"–"),W/2,y0+8,{s:10,c:1,mw:W-20});return W}
+function pdfEntete(doc,titre,y0){pdfHead(doc);const W=doc.internal.pageSize.getWidth();pTx(doc,titre,W/2,y0,{b:1,s:16,c:1});pTx(doc,String(E.nom||"").toUpperCase(),W/2,y0+8,{b:1,s:15,c:1,mw:W-20});return W}
 function pdfSignR(doc,y,tit,nom){const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();if(y>H-40){doc.addPage();y=20}doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(20);doc.text(pt(tit),W-14,y,{align:"right"});if(nom)doc.text(pt(nom),W-14,y+18,{align:"right"})}
 function pdfSign(doc,y){pdfSignR(doc,y,"Le Directeur",E.directeur||"")}
 function pdfFiche(doc){const st=[...ST.el].sort(cmp),g=st.filter(x=>x.sexe=="G").length,W=pdfEntete(doc,"FICHE DE NOTES – CM2",14+HO);
