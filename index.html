@@ -514,14 +514,14 @@ return{intro:"Ce rapport analyse les résultats des districts de l’IEF de Tiva
 async function iaTexte(type,data,fb){const key=type+"|"+JSON.stringify(data);if(RPC[key])return RPC[key];
 try{const g=await sb.auth.getSession(),tk=g&&g.data&&g.data.session?g.data.session.access_token:K,ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),40000);
 const r=await fetch(U+"/functions/v1/rapport-ia",{method:"POST",signal:ctl.signal,headers:{"Content-Type":"application/json",Authorization:"Bearer "+tk,apikey:K},body:JSON.stringify({type,data})});clearTimeout(to);
-if(!r.ok)throw new Error("IA "+r.status);const j=await r.json();if(!j||typeof j.intro!="string"||!j.sections||typeof j.sections!="object")throw new Error("format");j.ia=true;return RPC[key]=j}catch(e){const j=fb();j.ia=false;return j}}
+if(!r.ok){let t="";try{t=(await r.text()).slice(0,220)}catch(e){}throw new Error("réponse "+r.status+(t?" - "+t:""))}const j=await r.json();if(!j||typeof j.intro!="string"||!j.sections||typeof j.sections!="object")throw new Error("format");j.ia=true;return RPC[key]=j}catch(e){const j=fb();j.ia=false;let m=String((e&&e.name=="AbortError")?"délai dépassé":(e&&e.message)||e);if(/failed to fetch|networkerror|load failed/i.test(m))m="fonction rapport-ia injoignable (nom, déploiement ou réseau)";j.err=m.slice(0,240);return j}}
 function kit(doc){const W=210,H=297,m=14,k={y:70};
 k.need=h=>{if(k.y+h>H-18){doc.addPage();k.y=18}};
 k.t=(t,o={})=>{if(!t)return;const s=o.s||10;doc.setFont("helvetica",o.b?"bold":"normal");doc.setFontSize(s);doc.setTextColor(...(o.c||[20,20,20]));const L=doc.splitTextToSize(pt(t),W-2*m),h=L.length*s*0.42+2;k.need(h+3);doc.text(L,m,k.y+3);k.y+=h+(o.g||0)};
 k.h=(t,col)=>{k.need(18);k.y+=3;doc.setFillColor(...col);doc.rect(m,k.y,W-2*m,7.5,"F");doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(255);doc.text(doc.splitTextToSize(pt(t),W-2*m-4)[0],m+2,k.y+5.1);k.y+=11};
 k.tb=(head,body,o={})=>{if(!body.length)return;k.need(24);doc.autoTable({head:[head],body:body.map(r=>r.map(c=>pt(c))),startY:k.y,theme:"grid",margin:{left:m,right:m,bottom:16},rowPageBreak:"avoid",styles:{font:"helvetica",fontSize:8.5,cellPadding:1.6,lineColor:[20,20,20],lineWidth:0.15,textColor:[20,20,20],valign:"middle"},headStyles:{fillColor:o.fc||[35,95,70],textColor:255,halign:"center"},columnStyles:o.cs||{},didParseCell:d=>{if(d.section=="body"&&d.column.index==o.ec){const v=String(d.cell.raw);d.cell.styles.fontStyle="bold";d.cell.styles.textColor=v.startsWith("-")?[170,30,30]:[20,110,60]}}});k.y=doc.lastAutoTable.finalY+4};
 return k}
-const VERT=[35,95,70],ROUGE=[170,40,40],GRIS=[110,110,110],noteIA=ia=>ia?"Les commentaires de ce rapport ont été rédigés avec l’aide de l’IA à partir des chiffres de la plateforme ; ils doivent être relus avant diffusion.":"Les commentaires de ce rapport ont été générés automatiquement à partir des chiffres de la plateforme.";
+const VERT=[35,95,70],ROUGE=[170,40,40],GRIS=[110,110,110],noteIA=(ia,err)=>ia?"Les commentaires de ce rapport ont été rédigés avec l’aide de l’IA à partir des chiffres de la plateforme ; ils doivent être relus avant diffusion.":"Les commentaires de ce rapport ont été générés automatiquement à partir des chiffres de la plateforme."+(err?" (IA indisponible : "+err+")":"");
 async function rapCodec(id){const d=DS.find(x=>x.id==id);if(!d)return;toast("Rédaction du rapport en cours…");
 try{await loadRes();const z=districtStats(d),A=z.codecs.map(anaCodec).filter(c=>c.p!=null).sort(rateSort);if(!A.length)return toast("Aucune saisie complète ce mois-ci : rapport impossible.","er");
 const dn={nom:d.nom,schools:z.schools},data={mois:ml(MO),district:{nom:d.nom,taux:r1(z.p),presents:z.presents,admis:z.admis},codecs:A.map(c=>({id:String(c.id),nom:c.nom,taux:r1(c.p),presents:c.presents,admis:c.admis,ecoles:c.nbEc,sous_le_taux_du_codec:c.bas.slice(0,10).map(rs),au_dessus_du_taux_du_codec:c.haut.slice(0,6).map(rs),ecoles_sans_saisie_complete:c.sans.length}))},nr=await iaTexte("codec",data,()=>fbCodec(A,dn)),
@@ -531,8 +531,8 @@ A.forEach(c=>{const s=nr.sections[String(c.id)]||{};k.h(c.nom+" - "+pc(c.p)+" ("
 if(c.haut.length){k.t("Écoles qui ont soutenu le taux du CODEC",{b:1,s:9.5,c:VERT});k.tb(hd,c.haut.map(rw),{cs,ec:4})}
 if(c.bas.length||s.pb){k.t("Points d’attention",{b:1,s:10.5,c:ROUGE});k.t(s.pb,{g:1});k.tb(hd,c.bas.map(rw),{cs,ec:4,fc:ROUGE})}
 if(c.sans.length)k.t("Sans saisie complète (non comptées dans le taux) : "+c.sans.join(", "),{s:8.5,c:GRIS,g:2})});
-if(nr.conclusion)k.t(nr.conclusion,{g:2});k.t(noteIA(nr.ia),{s:8,c:GRIS})});
-toast(nr.ia?"Rapport téléchargé (rédigé avec l’IA).":"Rapport téléchargé.")}catch(e){console.error(e);toast("Impossible de produire le rapport : "+(e.message||e),"er")}}
+if(nr.conclusion)k.t(nr.conclusion,{g:2});k.t(noteIA(nr.ia,nr.err),{s:8,c:GRIS})});
+toast(nr.ia?"Rapport téléchargé (rédigé avec l’IA).":"Rapport téléchargé, texte automatique : "+(nr.err||"IA indisponible"),nr.ia?undefined:"er")}catch(e){console.error(e);toast("Impossible de produire le rapport : "+(e.message||e),"er")}}
 async function rapIEF(){toast("Rédaction du rapport en cours…");
 try{await loadRes();const A=DS.map(anaDist).filter(x=>x.p!=null).sort(rateSort),tot=totalStats(SCH);if(!A.length)return toast("Aucune saisie complète ce mois-ci : rapport impossible.","er");
 const data={mois:ml(MO),ief:{taux:r1(tot.p),presents:tot.presents,admis:tot.admis},districts:A.map(d=>({id:String(d.id),nom:d.nom,taux:r1(d.p),presents:d.presents,admis:d.admis,ecoles:d.nbEc,effet_sur_ief_pts:r1(d.eff),codec_en_hausse:d.hausse.slice(0,6).map(c=>({codec:c.nom,taux:r1(c.p),effet_pts:r1(c.eff)})),codec_en_baisse:d.baisse.slice(0,6).map(c=>({codec:c.nom,taux:r1(c.p),effet_pts:r1(c.eff)}))}))},nr=await iaTexte("ief",data,()=>fbIEF({tot,ds:A})),
@@ -541,8 +541,8 @@ await dlPdf("Rapport_districts_IEF_"+MO+".pdf",false,doc=>{const k=kit(doc),W=21
 k.tb(["Rang","District","Présents","Admis","Taux","Effet sur l’IEF"],A.map((d,i)=>[i+1,d.nom,d.presents,d.admis,pc(d.p),d.eff==null?"–":pts(d.eff)]),{cs:{0:{cellWidth:14,halign:"center"},2:{halign:"center",cellWidth:22},3:{halign:"center",cellWidth:20},4:{halign:"center",cellWidth:24},5:{halign:"center",cellWidth:34}},ec:5});
 A.forEach(d=>{const s=nr.sections[String(d.id)]||{};k.h(d.nom+" - "+pc(d.p)+" ("+d.admis+" admis / "+d.presents+" présents · "+d.nbEc+" école"+(d.nbEc>1?"s":"")+")",VERT);k.t(s.ap,{g:1});k.t(s.pb,{g:1});
 const rows=[...d.hausse.map(c=>["Hausse",c.nom,c.presents,c.admis,pc(c.p),pts(c.eff)]),...d.baisse.map(c=>["Baisse",c.nom,c.presents,c.admis,pc(c.p),pts(c.eff)])];if(rows.length)k.tb(["Sens","CODEC","Présents","Admis","Taux","Effet sur le district"],rows,{cs,ec:5})});
-if(nr.conclusion)k.t(nr.conclusion,{g:2});k.t(noteIA(nr.ia),{s:8,c:GRIS})});
-toast(nr.ia?"Rapport téléchargé (rédigé avec l’IA).":"Rapport téléchargé.")}catch(e){console.error(e);toast("Impossible de produire le rapport : "+(e.message||e),"er")}}
+if(nr.conclusion)k.t(nr.conclusion,{g:2});k.t(noteIA(nr.ia,nr.err),{s:8,c:GRIS})});
+toast(nr.ia?"Rapport téléchargé (rédigé avec l’IA).":"Rapport téléchargé, texte automatique : "+(nr.err||"IA indisponible"),nr.ia?undefined:"er")}catch(e){console.error(e);toast("Impossible de produire le rapport : "+(e.message||e),"er")}}
 const needEJ=()=>LJ("https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js",()=>window.ExcelJS);
 async function xlsTpl(){try{await needEJ()}catch(e){toast("Mise en forme indisponible (connexion) : fiche simplifiée téléchargée.","er");return xlsTplBasic()}
 try{await flushAll();const BK="FF000000",ln=t=>({style:t,color:{argb:BK}}),st=items().sort(cmp),nc=3+F.length,NR=Math.max(250,st.length),R0=5,dom=F.map(f=>f[1]);
