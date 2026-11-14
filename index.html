@@ -484,7 +484,7 @@ const g=GR[f[0]];if(g){const o=g.g.filter(k=>k!=f[0]).reduce((s,k)=>s+(nm(base[k
 if(nm(base[f[0]])&&base[f[0]]===v){same++;continue}base[f[0]]=v;add[f[0]]=v;nn++}
 if(ex){if(Object.keys(add).length)up.push({id:ex.id,add,full:base,nom:p+" "+n})}else nw.push({prenom:p,nom:n,sexe:x,add,full:base})}
 return{nw,up,dup,inv,bad,nn,same,hasN:Object.keys(c.k).length>0}}
-async function xlsTpl(){try{await needX()}catch(e){return toast(e.message,"er")}await flushAll();
+async function xlsTplBasic(){try{await needX()}catch(e){return toast(e.message,"er")}await flushAll();
 const st=items().sort(cmp),H=["Prénom","Nom","Sexe",...F.map(colH)],rows=[H];
 st.forEach(s=>{const n=s.n||{};rows.push([cap(s.prenom),s.nom,s.sexe,...F.map(f=>nm(n[f[0]])?n[f[0]]:"")])});
 if(!st.length)for(let i=0;i<3;i++)rows.push(["","","",...F.map(()=>"")]);
@@ -493,6 +493,25 @@ const wi=XLSX.utils.aoa_to_sheet([["Comment remplir cette fiche"],[""],["1. Colo
 const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Fiche de notes");XLSX.utils.book_append_sheet(wb,wi,"Consignes");
 const fn2="Fiche_notes_"+MO+"_"+String(E.nom||"ecole").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_+|_+$/g,"")+".xlsx";
 XLSX.writeFile(wb,fn2);toast("Fiche Excel téléchargée : remplissez-la puis importez-la.")}
+const needEJ=()=>LJ("https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js",()=>window.ExcelJS);
+async function xlsTpl(){try{await needEJ()}catch(e){toast("Mise en forme indisponible (connexion) : fiche simplifiée téléchargée.","er");return xlsTplBasic()}
+try{await flushAll();const BK="FF000000",ln=t=>({style:t,color:{argb:BK}}),st=items().sort(cmp),nc=3+F.length,NR=Math.max(60,st.length+15),R0=5,dom=F.map(f=>f[1]);
+const wb=new ExcelJS.Workbook(),ws=wb.addWorksheet("Fiche de notes",{views:[{state:"frozen",xSplit:3,ySplit:R0,showGridLines:false}],pageSetup:{orientation:"landscape",paperSize:9,fitToPage:true,fitToWidth:1,fitToHeight:0}});
+[22,22,8].forEach((w,i)=>ws.getColumn(i+1).width=w);F.forEach((f,i)=>ws.getColumn(i+4).width=13);
+const T=(r,t,sz,ht)=>{ws.mergeCells(r,1,r,nc);const c=ws.getCell(r,1);c.value=t;c.font={name:"Calibri",bold:true,size:sz};c.alignment={horizontal:"center",vertical:"middle"};ws.getRow(r).height=ht};
+T(1,"FICHE DE NOTES – CM2",18,30);T(2,String(E.nom||"").toUpperCase(),15,26);T(3,"Mois : "+ml(MO),11,20);ws.getRow(4).height=8;
+const bd=(c,top,bot)=>{const fi=c==1||c==4||(c>4&&dom[c-4]!=dom[c-5]),la=c==3||c==nc||(c>3&&c<nc&&dom[c-4]!=dom[c-3]);return{left:ln(fi?"medium":"thin"),right:ln(la?"medium":"thin"),top:ln(top?"medium":"thin"),bottom:ln(bot?"medium":"thin")}};
+["Prénom","Nom","Sexe",...F.map(colH)].forEach((t,i)=>{const c=ws.getCell(R0,i+1);c.value=t;c.font={name:"Calibri",bold:true,size:10};c.alignment={horizontal:"center",vertical:"middle",wrapText:true};c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFE4F3EA"}};c.border=bd(i+1,1,1)});ws.getRow(R0).height=64;
+for(let i=0;i<NR;i++){const r=R0+1+i,s=st[i],n=s?(s.n||{}):{};ws.getRow(r).height=20;
+for(let c=1;c<=nc;c++){const x=ws.getCell(r,c);x.border=bd(c,i==0,i==NR-1);x.font={name:"Calibri",size:11};x.alignment={horizontal:c<=2?"left":"center",vertical:"middle"};
+if(c<=3){if(s){x.value=c==1?cap(s.prenom):c==2?s.nom:s.sexe;x.protection={locked:true};x.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF2F2F2"}}}else{x.protection={locked:false};if(c==3)x.dataValidation={type:"list",allowBlank:true,formulae:['"G,F"'],showErrorMessage:true,errorStyle:"stop",errorTitle:"Sexe",error:"Saisissez G ou F."}}}
+else{const f=F[c-4],g=GR[f[0]];if(nm(n[f[0]]))x.value=n[f[0]];x.protection={locked:false};x.dataValidation={type:"decimal",operator:"between",allowBlank:true,formulae:[0,g?g.m:f[3]],showErrorMessage:true,errorStyle:"stop",errorTitle:"Note invalide",error:"Saisissez un nombre entre 0 et "+(g?g.m:f[3])+"."}}}}
+await ws.protect("",{selectLockedCells:true,selectUnlockedCells:true});
+const wi=wb.addWorksheet("Consignes");wi.getColumn(1).width=115;
+["Comment remplir cette fiche","","1. Seules les cases modifiables peuvent être renseignées : tout le reste est verrouillé. Ne changez pas les titres.","2. Prénom, Nom et Sexe (G ou F) : obligatoires pour chaque nouvel élève, sur les lignes vides. Si vous ne remplissez que ces trois colonnes, seuls les élèves sont importés.","3. Colonnes de notes : facultatives. Si elles sont remplies, toutes les notes sont importées pour le mois de "+ml(MO)+".","4. Une case de note vide ne modifie jamais la note déjà enregistrée. Notes décimales possibles (ex. 12,5).","5. Chaque note ne doit pas dépasser le maximum indiqué dans le titre de la colonne. Pour les ressources de DM et de EDD, il n’y a pas de maximum par colonne mais le total ne doit pas dépasser 24.","6. Enregistrez le fichier puis utilisez « Importer (Excel) » dans la page de saisie."].forEach((t,i)=>{const c=wi.getCell(i+1,1);c.value=t;c.alignment={wrapText:true,vertical:"top"};c.font={name:"Calibri",size:i?11:14,bold:!i}});
+await wi.protect("",{selectLockedCells:true,selectUnlockedCells:true});
+const fn2="Fiche_notes_"+MO+"_"+String(E.nom||"ecole").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_+|_+$/g,"")+".xlsx",buf=await wb.xlsx.writeBuffer(),u=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})),a=document.createElement("a");a.href=u;a.download=fn2;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);
+toast("Fiche Excel téléchargée : remplissez-la puis importez-la.")}catch(e){console.error(e);toast("Mise en forme impossible : fiche simplifiée téléchargée.","er");return xlsTplBasic()}}
 async function impEl(inp){const f=inp.files[0];inp.value="";if(!f)return;let rows;try{await needX();const wb=XLSX.read(await f.arrayBuffer(),{type:"array"});rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:""})}catch(e){return toast(e.message||"Fichier illisible.","er")}
 await flushAll();const r=parseEleves(rows,ST.el);if(!r)return modal({t:"Colonnes introuvables",b:"<p>La première ligne du fichier doit contenir les colonnes <b>Prénom</b>, <b>Nom</b> et <b>Sexe</b> (G ou F). Utilisez le bouton « Fiche Excel » pour obtenir le bon modèle.</p>",no:false,ok:"Compris",val:()=>true});
 const skip=(r.inv.length?"<br>"+r.inv.length+" ligne(s) ignorée(s) (prénom, nom ou sexe manquant ou non reconnu) : ligne(s) "+r.inv.slice(0,8).join(", ")+(r.inv.length>8?"…":"")+".":"")+(r.bad?"<br>"+r.bad+" note(s) ignorée(s) (valeur non numérique, négative ou au-dessus du maximum).":"")+(r.dup?"<br>"+r.dup+" doublon(s) dans le fichier ignoré(s).":"");
