@@ -6,7 +6,10 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="BEXCO TIVAOUANE – Suivi des notes CM2">
 
+<meta property="og:url" content="https://csarr111-arch.github.io/suivi-notes/">
+<meta property="og:description" content="Saisie et suivi mensuel des notes du CM2 – Inspection de l’Éducation et de la Formation de Tivaouane">
 <meta property="og:image" content="https://csarr111-arch.github.io/suivi-notes/image-accueil.png">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -344,7 +347,7 @@ const empty=(t,s,a="",i="folder")=>`<div class="em0">${ic(i,40)}<b>${t}</b><p>${
 const skel=()=>`<div class="kg">${"<div class=sk></div>".repeat(4)}</div><div class="sk" style="height:260px"></div>`;
 const kpi=(l,v,s="",i="chart")=>`<div class="kc"><div class="ki">${ic(i,22)}</div><div><span class="mu">${l}</span><b>${v}</b><small>${s}</small></div></div>`;
 function wa(num,login,pw){let n=String(num||"").replace(/\D/g,"");if(n.startsWith("00"))n=n.slice(2);if(n.length==9)n="221"+n;if(n.length<9)return toast("Numéro de téléphone invalide.","er");
-const t=`Bonjour,\nVoici vos identifiants pour le suivi des notes CM2 – IEF de Tivaouane :\nSite : ${location.href.split("#")[0]}\nIdentifiant : ${login}\nMot de passe : ${pw}\nMerci de ne pas les partager.`;window.open("https://wa.me/"+n+"?text="+encodeURIComponent(t),"_blank")}
+const t=`Bonjour,\nVoici vos identifiants pour le suivi des notes CM2 – IEF de Tivaouane :\nSite : ${SITE_URL}\nIdentifiant : ${login}\nMot de passe : ${pw}\nMerci de ne pas les partager.`;window.open("https://wa.me/"+n+"?text="+encodeURIComponent(t),"_blank")}
 const askPhone=async()=>{const r=await modal({t:"Envoyer par WhatsApp",b:`<label>Numéro WhatsApp</label><input id="mp" placeholder="77 123 45 67" inputmode="tel">`,ok:"Ouvrir WhatsApp",val:m=>{const v=m.querySelector("#mp").value.trim();if(v.replace(/\D/g,"").length<9)throw"Numéro invalide.";return v}});return r};
 
 /* ===== Noms des domaines et sous-domaines (modifiables par l'administrateur principal) ===== */
@@ -870,7 +873,8 @@ else if(!await ask("Changer le statut ?",`Le statut de <b>${esc(nom)}</b> sera m
 const{error}=await sb.rpc("decider_ecole",{p_ecole:String(id),p_decision:dec,p_motif:motif});
 if(error){toast(/does not exist|schema cache|could not find/i.test(error.message)?"Exécutez d’abord le script migration7.sql dans Supabase.":error.message,"er");return false}
 RC={};toast(dec=="valide"?"École validée. Informez maintenant le directeur.":dec=="refuse"?"Inscription refusée.":"Statut modifié.");return true}
-async function informerDir(e){const site=location.href.split("#")[0],txt=`Bonjour ${e.directeur||""},\nL’inscription de l’école ${e.nom} sur le site de suivi des notes CM2 – IEF de Tivaouane a été validée.\nSite : ${site}\nConnectez-vous avec vos accès pour saisir les notes de vos élèves. Vous pouvez aussi exporter la fiche Excel, la remplir, puis l’importer.\nMerci.`;
+const SITE_URL="https://csarr111-arch.github.io/suivi-notes/";
+async function informerDir(e){const txt=`${SITE_URL}\n\nBonjour ${e.directeur||""},\nL’inscription de l’école ${e.nom} sur le site de suivi des notes CM2 – IEF de Tivaouane a été validée.\nConnectez-vous avec vos accès pour saisir les notes de vos élèves. Vous pouvez aussi exporter la fiche Excel, la remplir, puis l’importer.\nMerci.`;
 const r=await modal({t:"Informer le directeur",w:480,ok:"Ouvrir WhatsApp",no:"Plus tard",b:`<p><b>${esc(e.nom)}</b> est validée. Envoyez ce message au directeur (modifiable). Il ne contient aucun mot de passe.</p><label>Numéro WhatsApp</label><input id="wn" inputmode="tel" value="${esc(e.telephone||"")}" placeholder="77 123 45 67"><label>Message</label><textarea id="wm" rows="7" style="width:100%">${esc(txt)}</textarea>`,val:m=>{let n=m.querySelector("#wn").value.replace(/\D/g,"");if(n.startsWith("00"))n=n.slice(2);if(n.length==9)n="221"+n;if(n.length<9)throw"Numéro de téléphone invalide.";return{n,t:m.querySelector("#wm").value}}});
 if(r)window.open("https://wa.me/"+r.n+"?text="+encodeURIComponent(r.t),"_blank")}
 async function decEc(id,dec){const e=ECD.ec.find(x=>x.id==id);if(!await decider(id,dec,e?e.nom:""))return ecTable();V.ge();if(dec=="valide"&&e)informerDir(e)}
