@@ -2,6 +2,11 @@
 <html lang="fr" data-theme="light"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f5132">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Suivi notes">
 <title>BEXCO TIVAOUANE – Suivi des notes CM2</title>
 <meta property="og:type" content="website">
 <meta property="og:title" content="BEXCO TIVAOUANE – Suivi des notes CM2">
@@ -31,7 +36,7 @@ h1{font-size:20px;margin:0}h2{font-size:18px;margin:0}h3{font-size:15px;margin:0
 .bn{display:none;position:fixed;bottom:0;left:0;right:0;z-index:40;background:var(--sf);border-top:1px solid var(--bd);overflow-x:auto;padding:6px}
 .bn button{flex:1 0 74px;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;color:var(--mu);font:600 10.5px inherit;padding:6px 4px;border-radius:10px;cursor:pointer}.bn button.on{color:var(--ac);background:var(--al)}
 .btn,button,select,input{font:inherit}.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--bd);background:var(--sf);color:var(--tx);padding:8px 14px;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer;transition:.15s;white-space:nowrap}
-.btn:hover{background:var(--sf2);transform:translateY(-1px)}.btn:active{transform:none}.btn.pr{background:var(--ac);border-color:var(--ac);color:#fff}.btn.pr:hover{background:var(--ac2)}.btn.dg{background:var(--ko);border-color:var(--ko);color:#fff}.btn.wa{background:#1fa855;border-color:#1fa855;color:#fff}.btn.ins{background:#c2410c;border-color:#c2410c;color:#fff}.btn.ins:hover{background:#9a3412}.pwf{position:relative;display:block;width:100%}.pwf>input{width:100%;box-sizing:border-box;padding-right:44px!important}.pwe{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--mu);cursor:pointer;padding:6px;display:grid;place-items:center;border-radius:8px}.pwe:hover{color:var(--tx)}.btn.sm{padding:5px 10px;font-size:13px}.btn.gh{background:transparent}.btn:disabled{opacity:.5;cursor:default}
+.btn:hover{background:var(--sf2);transform:translateY(-1px)}.btn:active{transform:none}.btn.pr{background:var(--ac);border-color:var(--ac);color:#fff}.btn.pr:hover{background:var(--ac2)}.btn.dg{background:var(--ko);border-color:var(--ko);color:#fff}.btn.wa{background:#1fa855;border-color:#1fa855;color:#fff}.btn.ins{background:#c2410c;border-color:#c2410c;color:#fff}.btn.ins:hover{background:#9a3412}.offb{position:fixed;top:0;left:0;right:0;z-index:300;background:#a15c07;color:#fff;text-align:center;padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px;font-size:13px;font-weight:600}.offb[hidden]{display:none}.pwf{position:relative;display:block;width:100%}.pwf>input{width:100%;box-sizing:border-box;padding-right:44px!important}.pwe{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--mu);cursor:pointer;padding:6px;display:grid;place-items:center;border-radius:8px}.pwe:hover{color:var(--tx)}.btn.sm{padding:5px 10px;font-size:13px}.btn.gh{background:transparent}.btn:disabled{opacity:.5;cursor:default}
 .ib{position:relative;display:grid;place-items:center;width:36px;height:36px;border:1px solid var(--bd);background:var(--sf);color:var(--tx);border-radius:10px;cursor:pointer;padding:0}.ib:hover{background:var(--sf2)}.ib.sm{width:30px;height:30px}.ib:disabled{opacity:.4}
 .bdg{position:absolute;top:-5px;right:-5px;background:var(--ko);color:#fff;border-radius:999px;font-size:10px;font-weight:700;padding:1px 5px;min-width:16px}
 input,select{color:var(--tx);background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:8px 12px;outline:none;transition:.15s;max-width:100%}input:focus,select:focus{border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 22%,transparent)}
@@ -402,8 +407,10 @@ if(RG.d.length&&!$("#dd").value)return er("Choisissez votre district, puis votre
 for(const lg of[tl]){const e=mail(lg);let r=await sb.auth.signUp({email:e,password:pw});if(r.error||!r.data.session)r=await sb.auth.signInWithPassword({email:e,password:pw});if(r.error||!r.data.session)continue;
 const{error}=await sb.rpc("inscrire_ecole",{p_nom:en,p_directeur:dn,p_codec:cd,p_code:ic});if(error){await sb.auth.signOut();return er(error.message)}await sb.rpc("enregistrer_telephone_ecole",{p_tel:tl});return boot()}
 er("Inscription impossible : ce numéro est déjà inscrit (connectez-vous avec lui) ou « Confirm email » est encore activé dans Supabase.")}
-async function boot(){const{data:{session}}=await sb.auth.getSession();if(!session)return showLogin();if(REC)return showRecovery();ME=session.user;
-const{data:p}=await sb.from("profiles").select("*").eq("id",ME.id).maybeSingle();P=p;
+let OFFS=false;
+function showOffline(){OFFS=true;authBox(`<h2>Connexion impossible</h2><p>Vous êtes hors ligne ou le réseau est trop faible. La consultation et l’enregistrement des notes demandent une connexion.</p><p class="mu">Si vous avez déjà téléchargé votre « Fiche Excel », vous pouvez la remplir maintenant puis l’importer quand le réseau reviendra.</p><button class="btn pr" style="justify-content:center;padding:11px" onclick="OFFS=false;boot()">Réessayer</button>`)}
+async function boot(){let session;try{({data:{session}}=await sb.auth.getSession())}catch(_){return showOffline()}if(!session)return showLogin();if(!navigator.onLine)return showOffline();if(REC)return showRecovery();ME=session.user;
+const{data:p,error:pe}=await sb.from("profiles").select("*").eq("id",ME.id).maybeSingle();if(pe&&!p)return showOffline();P=p;
 if(!p)return authBox(`<h2>Compte non rattaché</h2><p class="err">Ce compte n’est rattaché à aucun profil.</p><button class="btn" onclick="out()">Déconnexion</button>`);
 if(p.role=="ecole"){const{data:e}=await sb.from("ecoles").select("*,codecs(nom)").eq("user_id",ME.id).maybeSingle();E=e;if(p.must_change)return showChange();
 if(e.statut!="valide")return authBox(`<h2>${esc(e.nom)}</h2><p>${e.statut=="suspendu"?"Votre compte est suspendu. Contactez l’administrateur.":e.statut=="refuse"?"Votre inscription a été refusée par l’administration."+(e.motif_refus?" Motif : "+esc(e.motif_refus)+".":"")+" Contactez l’inspection pour plus d’informations.":"Votre inscription est en attente de validation par l’administrateur. Revenez plus tard."}</p><button class="btn" onclick="out()">Déconnexion</button>`)}
@@ -926,5 +933,9 @@ function pwEye(){document.querySelectorAll("input[type=password]:not([data-eye])
 const b=document.createElement("button");b.type="button";b.className="pwe";b.tabIndex=-1;b.setAttribute("aria-label","Afficher ou masquer le mot de passe");b.title="Afficher / masquer";b.innerHTML=ic("eye",18);
 b.onclick=()=>{const h=i.type=="password";i.type=h?"text":"password";b.innerHTML=ic(h?"eyeoff":"eye",18);i.focus()};w.appendChild(b);if(foc)i.focus()})}
 new MutationObserver(pwEye).observe(document.body,{childList:true,subtree:true});pwEye();
+/* ===== Hors ligne : bandeau + installation ===== */
+const OB=document.createElement("div");OB.className="offb";OB.setAttribute("role","status");OB.textContent="Vous êtes hors ligne : l’enregistrement des notes nécessite une connexion.";document.body.appendChild(OB);
+const offUp=()=>{OB.hidden=navigator.onLine};addEventListener("offline",offUp);addEventListener("online",()=>{offUp();if(OFFS){OFFS=false;boot()}});offUp();
+if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 boot();
 </script></body></html>
