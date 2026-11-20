@@ -249,7 +249,31 @@ body{font-family:Inter,"Segoe UI",system-ui,sans-serif;letter-spacing:-.15px}
 /* ===== Configuration ===== */
 const U="https://uoolsewfhnwlknvmelix.supabase.co",K="sb_publishable_MohLgsB6-c2KfbXKZ2VuTg_rauPkc1w";
 let REC=/type=recovery/.test(location.hash);
-const sb=supabase.createClient(U,K);
+/* ===== Mode hors ligne : copie des lectures (IndexedDB) ===== */
+let HLUID=null,SERVED=0,SN=0;
+const OFL={db:null,
+open(){return OFL.db||(OFL.db=new Promise(ok=>{try{const r=indexedDB.open("suivi-notes-hl",1);r.onupgradeneeded=()=>r.result.createObjectStore("r");r.onsuccess=()=>ok(r.result);r.onerror=()=>ok(null)}catch(_){ok(null)}}))},
+async get(k){const d=await OFL.open();if(!d)return;return new Promise(ok=>{try{const q=d.transaction("r").objectStore("r").get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>ok()}catch(_){ok()}})},
+async set(k,v){const d=await OFL.open();if(!d)return;return new Promise(ok=>{try{const t=d.transaction("r","readwrite");t.objectStore("r").put(v,k);t.oncomplete=()=>ok(1);t.onerror=()=>ok()}catch(_){ok()}})},
+async clear(){const d=await OFL.open();if(!d)return;return new Promise(ok=>{try{const t=d.transaction("r","readwrite");t.objectStore("r").clear();t.oncomplete=()=>ok(1);t.onerror=()=>ok()}catch(_){ok()}})}};
+const READ_RPC=/\/rest\/v1\/rpc\/(resultats_codec|annee_courante|mon_inspecteur)$/;
+const uidOf=h=>{try{const t=(h.get("Authorization")||"").replace(/^Bearer /,"").split(".")[1];return JSON.parse(atob(t.replace(/-/g,"+").replace(/_/g,"/"))).sub||""}catch(_){return ""}};
+const offErr=m=>Object.assign(new Error(m),{name:"Hors ligne"});
+async function cfetch(input,opt){opt=opt||{};const url=typeof input=="string"?input:(input&&input.url)||String(input),m=String(opt.method||"GET").toUpperCase();
+if(url.indexOf(U+"/rest/v1/")!==0)return fetch(input,opt);
+const h=new Headers(opt.headers||{}),ok=m=="GET"||(m=="POST"&&READ_RPC.test(url.split("?")[0]));
+if(!ok){if(!navigator.onLine)throw offErr("Cette action demande une connexion Internet.");return fetch(input,opt)}
+const uid=uidOf(h),key=[uid||HLUID||"anon",m,url,h.get("Range")||"",h.get("Accept")||"",m=="POST"?String(opt.body||""):""].join("|"),wr=!!uid||!HLUID;
+const serve=async()=>{const c=await OFL.get(key);if(!c)return null;SERVED=c.t||Date.now();SN++;try{bannerUp()}catch(_){}const hd={"content-type":c.h["content-type"]||"application/json"};if(c.h["content-range"])hd["content-range"]=c.h["content-range"];return new Response(c.b,{status:c.s,headers:hd})};
+if(!navigator.onLine){const r=await serve();if(r)return r;throw offErr("Cette page n’a pas encore été consultée avec du réseau.")}
+let r;try{r=await Promise.race([fetch(input,opt),new Promise((_,no)=>setTimeout(()=>no(new TypeError("timeout")),15000))])}catch(e){const c=await serve();if(c)return c;throw e}
+if(r.status==200||r.status==206){SERVED=0;try{bannerUp()}catch(_){}if(wr)r.clone().text().then(b=>OFL.set(key,{t:Date.now(),s:r.status,b,h:{"content-type":r.headers.get("content-type")||"application/json","content-range":r.headers.get("content-range")||""}})).catch(()=>{})}
+return r}
+const sb=supabase.createClient(U,K,{global:{fetch:cfetch}});
+/* Hors ligne : ne pas attendre le rafraîchissement de la session (jusqu'à 30 s) pour lire les copies locales */
+{const rf=sb.rest.fetch;sb.rest.fetch=(input,opt)=>{if(navigator.onLine)return rf(input,opt);opt=opt||{};const h=new Headers(opt.headers||{});if(!h.has("apikey"))h.set("apikey",K);
+if(!h.has("Authorization")){let t=K;try{const k=Object.keys(localStorage).find(x=>/^sb-.*-auth-token$/.test(x));if(k)t=JSON.parse(localStorage.getItem(k)).access_token||K}catch(_){}h.set("Authorization","Bearer "+t)}
+return cfetch(input,{...opt,headers:h})}}
 /* ┌──────────────────────────────────────────────────────────────────────────┐
    │ NUMÉRO WHATSAPP DE L'ADMINISTRATION (à renseigner ici)                   │
    │ Format international, sans « + » ni espaces. Exemple : "221771234567"    │
@@ -386,7 +410,7 @@ m.className="ok";m.textContent="Si cette adresse correspond à un compte, un e-m
 function showRecovery(){authBox(`<h2>Nouveau mot de passe</h2><p>Choisissez votre nouveau mot de passe (8 caractères minimum).</p><input id="n1" type="password" autocomplete="new-password" placeholder="Nouveau mot de passe"><input id="n2" type="password" autocomplete="new-password" placeholder="Confirmer" onkeydown="if(event.key=='Enter')recover()"><button class="btn pr" style="justify-content:center;padding:11px" onclick="recover()">Enregistrer</button><p class="err" id="m"></p>`)}
 async function recover(){const a=$("#n1").value;if(a.length<8||a!=$("#n2").value)return $("#m").textContent="Mots de passe différents ou trop courts (8 caractères minimum).";
 const{error}=await sb.auth.updateUser({password:a});if(error)return $("#m").textContent=error.message;REC=false;history.replaceState(null,"",location.pathname+location.search);boot()}
-async function chgPriv(){if(!pri())return;
+async function chgPriv(){if(!pri())return;if(!navigator.onLine)return toast("Cette action demande une connexion Internet.","er");
 const r=await modal({t:"Changer mon mot de passe",b:`<label>Mot de passe actuel</label><input id="p0" type="password" autocomplete="current-password"><label>Nouveau mot de passe (8 caractères minimum)</label><input id="p1" type="password" autocomplete="new-password"><label>Confirmer le nouveau mot de passe</label><input id="p2" type="password" autocomplete="new-password">`,ok:"Enregistrer",val:m=>{const a=m.querySelector("#p0").value,b=m.querySelector("#p1").value,c=m.querySelector("#p2").value;if(!a)throw"Saisissez votre mot de passe actuel.";if(b.length<8)throw"Le nouveau mot de passe doit contenir au moins 8 caractères.";if(b!=c)throw"Les deux nouveaux mots de passe sont différents.";if(b==a)throw"Le nouveau mot de passe doit être différent de l’ancien.";return{a,b}}});
 if(!r)return;const s2=supabase.createClient(U,K,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}}),v=await s2.auth.signInWithPassword({email:ME.email,password:r.a});
 if(v.error)return toast("Mot de passe actuel incorrect.","er");const{error}=await sb.auth.updateUser({password:r.b});if(error)return toast(error.message,"er");toast("Mot de passe modifié.")}
@@ -397,7 +421,11 @@ if(error)return m.textContent=/schema cache|does not exist|Could not find/i.test
 if(!data)return m.textContent="Ce numéro n’est pas celui d’une école inscrite. Vérifiez-le ou contactez l’administration.";
 m.className="ok";m.innerHTML="Demande envoyée. L’administration vous enverra un nouveau mot de passe par WhatsApp sur ce numéro. Revenez ensuite vous connecter."+(ADMIN_WA?`<br><br><button class="btn wa" onclick="waAdmin('${encodeURIComponent(String(data))}','${encodeURIComponent(t)}')">Prévenir l’administration par WhatsApp</button>`:"")}
 function waAdmin(n,t){window.open("https://wa.me/"+ADMIN_WA.replace(/\D/g,"")+"?text="+encodeURIComponent("Bonjour, j’ai oublié le mot de passe de l’école « "+decodeURIComponent(n)+" ». Mon numéro WhatsApp : "+decodeURIComponent(t)+". Merci de m’envoyer un nouveau mot de passe."),"_blank")}
-async function out(){try{await flushAll()}catch(e){}await sb.auth.signOut();RC={};showLogin()}
+async function out(){try{await flushAll()}catch(e){}
+if(typeof qpend=="function"&&qpend()&&!await ask("Notes non envoyées","<p>Des notes ne sont pas encore envoyées au serveur. Elles restent sur cet appareil et partiront à votre prochaine connexion avec du réseau.</p><p>Se déconnecter quand même ?</p>","Se déconnecter",true))return;
+try{await Promise.race([sb.auth.signOut({scope:"local"}),new Promise(r=>setTimeout(r,4000))])}catch(e){}
+try{localStorage.removeItem("hl_id");Object.keys(localStorage).filter(k=>/^sb-.*-auth-token/.test(k)).forEach(k=>localStorage.removeItem(k))}catch(e){}
+clearTimeout(snapT);await OFL.clear();HLUID=null;SERVED=0;RC={};if(!navigator.onLine)return location.reload();showLogin()}
 let RG={d:[],c:[]};
 async function showReg(){const[a,b]=await Promise.all([sb.from("codecs").select("id,nom,district_id").order("nom"),sb.from("districts").select("id,nom").order("nom")]);RG.c=a.data||[];RG.d=b.data||[];
 const hasD=RG.d.length>0,orph=RG.c.filter(c=>!RG.d.some(d=>d.id==c.district_id)),dl=[...RG.d.filter(d=>RG.c.some(c=>c.district_id==d.id)),...(orph.length&&hasD?[{id:"_",nom:"Autres CODEC"}]:[])];
@@ -410,13 +438,20 @@ const{error}=await sb.rpc("inscrire_ecole",{p_nom:en,p_directeur:dn,p_codec:cd,p
 er("Inscription impossible : ce numéro est déjà inscrit (connectez-vous avec lui) ou « Confirm email » est encore activé dans Supabase.")}
 let OFFS=false;
 function showOffline(){OFFS=true;authBox(`<h2>Connexion impossible</h2><p>Vous êtes hors ligne ou le réseau est trop faible. La consultation et l’enregistrement des notes demandent une connexion.</p><p class="mu">Si vous avez déjà téléchargé votre « Fiche Excel », vous pouvez la remplir maintenant puis l’importer quand le réseau reviendra.</p><button class="btn pr" style="justify-content:center;padding:11px" onclick="OFFS=false;boot()">Réessayer</button>`)}
-async function boot(){let session;try{({data:{session}}=await sb.auth.getSession())}catch(_){return showOffline()}if(!session)return showLogin();if(!navigator.onLine)return showOffline();if(REC)return showRecovery();ME=session.user;
+const hlId=()=>{try{return JSON.parse(localStorage.getItem("hl_id")||"null")}catch(_){return null}};
+async function boot(){let session=null,ex=false;const hl=hlId();
+if(!navigator.onLine&&hl){ME={id:hl.uid};HLUID=hl.uid;return boot2()}
+try{({data:{session}}=await sb.auth.getSession())}catch(_){ex=true}
+if(ex&&hl){ME={id:hl.uid};HLUID=hl.uid;return boot2()}
+if(ex)return showOffline();if(!session)return showLogin();if(!navigator.onLine)return showOffline();if(REC)return showRecovery();ME=session.user;HLUID=null;return boot2()}
+async function boot2(){
 const{data:p,error:pe}=await sb.from("profiles").select("*").eq("id",ME.id).maybeSingle();if(pe&&!p)return showOffline();P=p;
 if(!p)return authBox(`<h2>Compte non rattaché</h2><p class="err">Ce compte n’est rattaché à aucun profil.</p><button class="btn" onclick="out()">Déconnexion</button>`);
 if(p.role=="ecole"){const{data:e}=await sb.from("ecoles").select("*,codecs(nom)").eq("user_id",ME.id).maybeSingle();E=e;if(p.must_change)return showChange();
 if(e.statut!="valide")return authBox(`<h2>${esc(e.nom)}</h2><p>${e.statut=="suspendu"?"Votre compte est suspendu. Contactez l’administrateur.":e.statut=="refuse"?"Votre inscription a été refusée par l’administration."+(e.motif_refus?" Motif : "+esc(e.motif_refus)+".":"")+" Contactez l’inspection pour plus d’informations.":"Votre inscription est en attente de validation par l’administrateur. Revenez plus tard."}</p><button class="btn" onclick="out()">Déconnexion</button>`)}
 else if(p.must_change)return showChange();
-await loadAnnee();await loadLib();if(!isE())await getMI();shell();go(isE()?"home":"ov");if(isE()&&E&&E.statut=="valide"&&E.decision_vue===false)notifDecision()}
+if(!HLUID){try{localStorage.setItem("hl_id",JSON.stringify({uid:ME.id}))}catch(_){}}if(isE()){qload();if(navigator.onLine&&!HLUID)flushAll()}
+await loadAnnee();await loadLib();if(!isE())await getMI();shell();bannerUp();go(isE()?"home":"ov");if(isE()&&E&&E.statut=="valide"&&E.decision_vue===false)notifDecision()}
 async function notifDecision(){await modal({t:"Inscription validée ✅",no:false,ok:"Commencer",b:`<p>L’inscription de <b>${esc(E.nom)}</b> a été <b>validée</b> par l’administration de l’IEF de Tivaouane.</p><p>Vous pouvez maintenant saisir les notes de vos élèves de CM2. Astuce : exportez la fiche Excel, remplissez-la, puis importez-la pour charger vos élèves d’un seul coup.</p>`,val:()=>true});E.decision_vue=true;sb.rpc("decision_vue").then(()=>{},()=>{})}
 function showChange(){const id=E?(/^\d{9,}$/.test(P.login||"")?P.login:(slug(E.directeur)==P.login?E.directeur:E.directeur+" "+E.nom)):"";authBox(`<h2>Nouveau mot de passe</h2><p>Choisissez votre mot de passe personnel (6 caractères minimum).</p>${E?`<p class="mu">Pour vous reconnecter, votre identifiant est : <b>${esc(id)}</b></p>`:""}<input id="n1" type="password" placeholder="Nouveau mot de passe"><input id="n2" type="password" placeholder="Confirmer" onkeydown="if(event.key=='Enter')chg()"><button class="btn pr" style="justify-content:center;padding:11px" onclick="chg()">Enregistrer</button><p class="err" id="m"></p>`)}
 async function chg(){const a=$("#n1").value;if(a.length<6||a!=$("#n2").value)return $("#m").textContent="Mots de passe différents ou trop courts.";
@@ -437,8 +472,10 @@ try{await V[v]()}catch(e){$("#vw").innerHTML=empty("Une erreur est survenue",esc
 const V={};
 
 /* ===== ÉCOLE : données ===== */
-async function loadSch(){await flushAll();const{data:el,error}=await sb.from("eleves").select("*").eq("ecole_id",E.id);if(error)throw error;ST.el=el||[];ST.M={};ST.el.forEach(s=>ST.M[s.id]=s);ST.N={};
-const{data:n,error:e2}=await sb.from("notes").select("*").eq("mois",MO).eq("numero",1);if(e2)throw e2;(n||[]).forEach(r=>ST.N[r.eleve_id]=r)}
+async function loadSch(){await flushAll();const sn0=SN;const{data:el,error}=await sb.from("eleves").select("*").eq("ecole_id",E.id);if(error)throw error;ST.el=el||[];ST.M={};ST.el.forEach(s=>ST.M[s.id]=s);ST.N={};
+const{data:n,error:e2}=await sb.from("notes").select("*").eq("mois",MO).eq("numero",1);if(e2)throw e2;(n||[]).forEach(r=>ST.N[r.eleve_id]=r);
+if(SN!=sn0){const sn=await OFL.get(snapKey());if(sn&&sn.mo==MO&&sn.el){ST.el=sn.el;ST.M={};ST.el.forEach(s=>ST.M[s.id]=s);ST.N=sn.N||{}}}
+DQ.forEach(q=>{if(q.mois==MO&&ST.M[q.id])ST.N[q.id]={...(ST.N[q.id]||{}),...(q.fl||{}),...q.v}});snapSave()}
 const items=()=>ST.el.map(e=>({...e,n:ST.N[e.id]}));
 async function notesAll(ids){let rows=[];for(let i=0;i<ids.length;i+=50){const{data,error}=await sb.from("notes").select("*").in("eleve_id",ids.slice(i,i+50)).eq("numero",1);if(error)throw error;rows=rows.concat(data)}const NM={};rows.forEach(r=>{(NM[r.mois]=NM[r.mois]||{})[r.eleve_id]=r});return NM}
 
@@ -473,7 +510,7 @@ const g=st.filter(s=>s.sexe=="G").length;h+=`<tr class="ft"><td colspan="3">Effe
 function live(id){const n=ST.N[id]||{};Object.keys(D).forEach(d=>{const g=$("#G"+id+d);if(g)g.textContent=f1(dt(n,d))});$("#T"+id).textContent=f1(tot(n));$("#V"+id).innerHTML="<b>"+(done(n)?f1(sc20(n)):"–")+"</b>";$("#D"+id).className="dt "+dot(n)}
 function foot(){const st=items(),ds=st.filter(s=>done(s.n)),c=(g,l,i)=>{const d=st.filter(s=>done(s.n)&&(!g||s.sexe==g)),z=st.filter(s=>!g||s.sexe==g).length;return kpi(l,bd(rate(d)),`${d.filter(s=>estAdmis(s.n)).length}/${d.length} élèves admis · effectif ${z}`,i)};
 const e=$("#sp");if(e)e.innerHTML=c("","Total G/F","chart")+c("G","Garçons","users")+c("F","Filles","users")+kpi("Saisie complète",`${ds.length}/${st.length}`,"élèves dont toutes les notes sont saisies","check")}
-function sv(s){const e=$("#sv");if(!e)return;const t=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});e.innerHTML=s=="ing"?"⏳ Enregistrement…":s=="ok"?`<span class="ok">✓ Enregistré à ${t}</span>`:`<span style="color:var(--ko)">⚠ Échec de l’enregistrement – vérifiez la connexion et réessayez</span>`}
+function sv(s){try{bannerUp()}catch(_){}const e=$("#sv");if(!e)return;const t=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});e.innerHTML=s=="off"?`<span style="color:var(--wr)">📴 Hors ligne : ${pendN()} élève(s) en attente d’envoi (gardé sur cet appareil)</span>`:s=="ing"?"⏳ Enregistrement…":s=="ok"?`<span class="ok">✓ Enregistré à ${t}</span>`:`<span style="color:var(--ko)">⚠ Échec de l’enregistrement – vérifiez la connexion et réessayez</span>`}
 function inp(e){const i=e.target;if(!i.dataset.s)return;let v=i.value===""?null:parseFloat(i.value.replace(",","."));const mx=+i.dataset.m;let bad=false;
 if(v!=null&&(isNaN(v)||v<0)){v=0;i.value=0;bad=true}let msg=null;if(v>mx){v=mx;i.value=mx;bad=true}const gp=GR[i.dataset.k];if(v!=null&&gp){const o=ST.N[i.dataset.s]||{},oth=gp.g.filter(k=>k!=i.dataset.k).reduce((a,k)=>a+(nm(o[k])?o[k]:0),0);if(v+oth>gp.m){v=Math.max(0,gp.m-oth);i.value=v;bad=true;msg=`Le total des ressources ${gp.n} ne peut pas dépasser ${gp.m} (il reste ${Math.max(0,gp.m-oth)} à répartir).`}}if(bad){i.classList.add("bd2");toast(msg||`La note maximale est ${mx}.`,"er");setTimeout(()=>i.classList.remove("bd2"),700)}
 i.classList.toggle("fl",v!=null);i.classList.toggle("em",v==null);ST.N[i.dataset.s]={...(ST.N[i.dataset.s]||{}),[i.dataset.k]:v};live(i.dataset.s);foot();qn(i.dataset.s,i.dataset.k,v);sv("ing")}
@@ -481,20 +518,27 @@ i.classList.toggle("fl",v!=null);i.classList.toggle("em",v==null);ST.N[i.dataset
    (ou après 8 s sans modification, ou en quittant le tableau / la page). En cas d'échec : 3 nouveaux essais automatiques, puis reprise toutes les 30 s. */
 const DQ=new Map();let LASTS=null;
 const qpend=()=>[...DQ.values()].some(q=>q.busy||Object.keys(q.v).length);
-function qn(id,k,v){const key=id+"|"+MO;let q=DQ.get(key);if(!q){q={id,mois:MO,v:{},t:null,busy:false,p:null,fails:0};DQ.set(key,q)}q.v[k]=v===undefined?null:v;clearTimeout(q.t);q.t=setTimeout(()=>flushN(key),8000)}
-async function flushN(key){const q=DQ.get(key);if(!q)return;if(q.busy)return q.p;clearTimeout(q.t);const vals=q.v;if(!Object.keys(vals).length){DQ.delete(key);return}
-q.v={};q.busy=true;sv("ing");
-q.p=(async()=>{let ok=false,msg="";for(let a=0;a<4&&!ok;a++){if(a)await new Promise(r=>setTimeout(r,[0,1500,4000,9000][a]));try{const{error}=await sb.from("notes").upsert({eleve_id:q.id,mois:q.mois,numero:1,...vals},{onConflict:"eleve_id,mois,numero"});if(error)msg=error.message;else ok=true}catch(e){msg=(e&&e.message)||"connexion"}}
-q.busy=false;
-if(ok){q.fails=0;if(!Object.keys(q.v).length)DQ.delete(key);else q.t=setTimeout(()=>flushN(key),300);if(!qpend())sv("ok");
+const NETRE=/failed to fetch|networkerror|network request failed|load failed|hors ligne|timeout/i;let LSOK=true;
+const pendN=()=>[...DQ.values()].filter(q=>q.busy||Object.keys(q.v).length).length;
+const qkey=()=>"hl_q_"+((ME&&ME.id)||"");
+function qsave(){try{const a=[...DQ.values()].map(q=>({id:q.id,mois:q.mois,v:{...(q.fl||{}),...q.v}})).filter(x=>Object.keys(x.v).length);if(a.length)localStorage.setItem(qkey(),JSON.stringify(a));else localStorage.removeItem(qkey());LSOK=true}catch(_){LSOK=false}}
+function qload(){try{JSON.parse(localStorage.getItem(qkey())||"[]").forEach(x=>{const k=x.id+"|"+x.mois;if(!DQ.has(k))DQ.set(k,{id:x.id,mois:x.mois,v:x.v,fl:null,t:null,busy:false,p:null,fails:0})})}catch(_){}}
+const snapKey=()=>"snap|"+((ME&&ME.id)||"")+"|"+MO;let snapT=null;
+function snapSave(){clearTimeout(snapT);snapT=setTimeout(()=>{try{OFL.set(snapKey(),{el:ST.el,N:ST.N,mo:MO})}catch(_){}},250)}
+function qn(id,k,v){const key=id+"|"+MO;let q=DQ.get(key);if(!q){q={id,mois:MO,v:{},t:null,busy:false,p:null,fails:0};DQ.set(key,q)}q.v[k]=v===undefined?null:v;qsave();snapSave();clearTimeout(q.t);q.t=setTimeout(()=>flushN(key),8000)}
+async function flushN(key){const q=DQ.get(key);if(!q)return;if(q.busy)return q.p;clearTimeout(q.t);const vals=q.v;if(!Object.keys(vals).length){DQ.delete(key);qsave();return}
+q.v={};q.fl=vals;q.busy=true;sv("ing");
+q.p=(async()=>{let ok=false,msg="",net=false;for(let a=0;a<4&&!ok;a++){if(a)await new Promise(r=>setTimeout(r,[0,1500,4000,9000][a]));if(!navigator.onLine){msg="hors ligne";net=true;break}try{const{error}=await sb.from("notes").upsert({eleve_id:q.id,mois:q.mois,numero:1,...vals},{onConflict:"eleve_id,mois,numero"});if(error){msg=error.message;if(NETRE.test(msg)){net=true;break}}else ok=true}catch(e){msg=(e&&e.message)||"connexion";if(NETRE.test(msg)){net=true;break}}}
+q.busy=false;q.fl=null;
+if(ok){q.fails=0;if(!Object.keys(q.v).length)DQ.delete(key);else q.t=setTimeout(()=>flushN(key),300);qsave();snapSave();if(!qpend())sv("ok");else sv("ing");
 if(!(document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.s)&&q.mois==MO){const o=ordered();if(o.all&&[...document.querySelectorAll("#tb tr[data-id]")].map(r=>r.dataset.id).join()!=o.st.map(s=>s.id).join()){toast("Saisie complète : classement par mérite.");setTimeout(drawSchool,0)}}}
-else{q.v={...vals,...q.v};q.fails++;sv("er");if(q.fails==1)toast("Enregistrement impossible ("+msg+"). Nouvel essai automatique…","er");if(q.fails<6)q.t=setTimeout(()=>flushN(key),30000)}})();
+else{q.v={...vals,...q.v};q.fails++;qsave();if(net){sv("off");if(q.fails==1)toast("Pas de connexion : vos notes sont gardées sur cet appareil et partiront dès le retour du réseau.");if(navigator.onLine&&q.fails<6)q.t=setTimeout(()=>flushN(key),30000)}else{sv("er");if(q.fails==1)toast("Enregistrement impossible ("+msg+"). Nouvel essai automatique…","er");if(q.fails<6)q.t=setTimeout(()=>flushN(key),30000)}}})();
 return q.p}
 const flushAll=()=>Promise.all([...DQ.keys()].map(flushN));
 window.addEventListener("pagehide",()=>{flushAll()});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState=="hidden")flushAll()});
 window.addEventListener("online",()=>flushAll());
-window.addEventListener("beforeunload",e=>{if(qpend()){flushAll();e.preventDefault();e.returnValue=""}});
+window.addEventListener("beforeunload",e=>{qsave();if(qpend()){flushAll();if(!LSOK){e.preventDefault();e.returnValue=""}}});
 async function addEl(){const r=await modal({t:"Ajouter un élève",b:`<label>Prénom</label><input id="m1" autocomplete="off"><label>Nom de famille</label><input id="m2" autocomplete="off"><label>Sexe</label><select id="m3"><option value="G">Garçon</option><option value="F">Fille</option></select>`,ok:"Ajouter",val:m=>{const p=cap(m.querySelector("#m1").value),n=m.querySelector("#m2").value.trim().toUpperCase();if(!p||!n)throw"Renseignez le prénom et le nom.";return{p,n,s:m.querySelector("#m3").value}}});
 if(!r)return;const{error}=await sb.from("eleves").insert({ecole_id:E.id,prenom:r.p,nom:r.n,sexe:r.s});if(error)return toast(error.message,"er");toast("Élève ajouté : "+cap(r.p)+" "+r.n);await loadSch();if(CURV=="saisie"){if(!$("#tb"))return V.saisie();drawSchool()}}
 async function delEl(id){const s=ST.M[id];if(!await ask("Supprimer cet élève ?",`<b>${fn(s)}</b> et toutes ses notes seront supprimés définitivement.`,"Supprimer",true))return;const{error}=await sb.from("eleves").delete().eq("id",id);if(error)return toast(error.message,"er");toast("Élève supprimé.");await loadSch();drawSchool()}
@@ -935,8 +979,18 @@ const b=document.createElement("button");b.type="button";b.className="pwe";b.tab
 b.onclick=()=>{const h=i.type=="password";i.type=h?"text":"password";b.innerHTML=ic(h?"eyeoff":"eye",18);i.focus()};w.appendChild(b);if(foc)i.focus()})}
 new MutationObserver(pwEye).observe(document.body,{childList:true,subtree:true});pwEye();
 /* ===== Hors ligne : bandeau + installation ===== */
-const OB=document.createElement("div");OB.className="offb";OB.setAttribute("role","status");OB.textContent="Vous êtes hors ligne : l’enregistrement des notes nécessite une connexion.";document.body.appendChild(OB);
-const offUp=()=>{OB.hidden=navigator.onLine};addEventListener("offline",offUp);addEventListener("online",()=>{offUp();if(OFFS){OFFS=false;boot()}});offUp();
+const OB=document.createElement("div");OB.className="offb";OB.setAttribute("role","status");document.body.appendChild(OB);
+function bannerUp(){let t="";try{const off=!navigator.onLine;if(off||SERVED){const d=SERVED?new Date(SERVED).toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"",a=off?"Hors ligne":"Réseau indisponible";
+if(typeof P!="undefined"&&P&&P.role=="ecole"){const n=pendN();t=a+" : vos notes sont gardées sur cet appareil"+(n?" ("+n+" élève"+(n>1?"s":"")+" en attente d’envoi)":"")+" et partiront dès le retour du réseau."+(d?" Données du "+d+".":"")}
+else if(typeof P!="undefined"&&P)t=a+" : lecture seule"+(d?", données du "+d:"")+".";
+else t="Vous êtes hors ligne : l’enregistrement des notes nécessite une connexion."}}catch(_){}OB.textContent=t;OB.hidden=!t}
+async function backOnline(){if(!HLUID)return;let r={};try{r=await sb.auth.getSession()}catch(_){return}
+const se=r.data&&r.data.session,er=r.error;
+if(se&&se.user.id==HLUID){HLUID=null;SERVED=0;bannerUp();toast("Réseau rétabli : envoi de vos notes…");await flushAll();bannerUp();const f=document.activeElement;if(typeof CURV!="undefined"&&CURV&&!(f&&f.dataset&&f.dataset.s))go(CURV);return}
+if(er&&/fetch|network|timeout/i.test(String(er.message||er.name)))return;
+HLUID=null;showLogin("Session expirée : reconnectez-vous. Vos notes en attente seront envoyées après la connexion.")}
+addEventListener("offline",bannerUp);addEventListener("online",()=>{bannerUp();if(OFFS){OFFS=false;return boot()}backOnline()});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState=="visible"&&navigator.onLine&&qpend())flushAll()});bannerUp();
 if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 boot();
 </script></body></html>
