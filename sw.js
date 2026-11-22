@@ -1,7 +1,7 @@
 /* Suivi des notes CM2 – IEF Tivaouane : ouverture sans réseau.
    Les données (notes, élèves) ne sont JAMAIS mises en mémoire ici : elles viennent toujours de Supabase.
    Pour désactiver : supprimer ce fichier sur GitHub (ou le remplacer par un script qui se désinscrit). */
-const C = "suivi-notes-v1";
+const C = "suivi-notes-v2";
 const INDEX = new URL("index.html", self.registration.scope).href;
 const LOCAL = ["manifest.json", "icon-192.png", "icon-512.png"];
 const CDN = [
@@ -32,15 +32,16 @@ self.addEventListener("activate", e => {
   })());
 });
 
-/* Page : réseau d'abord (nouvelle version toujours prioritaire), copie locale seulement si pas de réseau */
+/* Page : réseau d'abord, mais pas plus de 3 s ; sinon copie locale tout de suite, et la mise à jour continue en arrière-plan */
 async function page(req) {
   const c = await caches.open(C);
+  const net = fetch(req).then(n => { if (n.ok && !n.redirected) c.put(INDEX, n.clone()); return n; });
   try {
-    const n = await Promise.race([fetch(req), new Promise((_, no) => setTimeout(no, 7000))]);
-    if (n.ok && !n.redirected) c.put(INDEX, n.clone());
-    return n;
+    return await Promise.race([net, new Promise((_, no) => setTimeout(no, 3000))]);
   } catch (_) {
-    return (await c.match(INDEX)) || Response.error();
+    const m = await c.match(INDEX);
+    if (m) { net.catch(() => {}); return m; }
+    return net.catch(() => Response.error());
   }
 }
 async function netFirst(req) {
