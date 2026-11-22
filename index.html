@@ -274,13 +274,13 @@ const sb=supabase.createClient(U,K,{global:{fetch:cfetch}});
 {const rf=sb.rest.fetch;sb.rest.fetch=(input,opt)=>{if(navigator.onLine)return rf(input,opt);opt=opt||{};const h=new Headers(opt.headers||{});if(!h.has("apikey"))h.set("apikey",K);
 if(!h.has("Authorization")){let t=K;try{const k=Object.keys(localStorage).find(x=>/^sb-.*-auth-token$/.test(x));if(k)t=JSON.parse(localStorage.getItem(k)).access_token||K}catch(_){}h.set("Authorization","Bearer "+t)}
 return cfetch(input,{...opt,headers:h})}}
-/* ┌──────────────────────────────────────────────────────────────────────────┐
-   │ NUMÉRO WHATSAPP DE L'ADMINISTRATION (à renseigner ici)                   │
-   │ Format international, sans « + » ni espaces. Exemple : "221771234567"    │
-   │ Il sert au bouton « Prévenir l'administration par WhatsApp » de la page  │
-   │ « Mot de passe oublié ». Laissez "" pour ne pas afficher ce bouton.      │
-   └──────────────────────────────────────────────────────────────────────────┘ */
-const ADMIN_WA="";
+
+
+
+
+
+
+
 const F=[["lc_r","LC","Ressources / Voyellation",40],["lc_c","LC","Compétence",60],["ma_r","Maths","Ressources",40],["ma_c","Maths","Compétence",60],["dm_h","DM","Histoire",24],["dm_g","DM","Géographie",24],["dm_s","DM","IST",24],["dm_c","DM","Compétence",16],["edd_v","EDD","Vivre ensemble",24],["edd_m","EDD","Vivre dans son milieu",24],["edd_c","EDD","Compétence",16],["dessin","Dessin","",10],["ar_fr","AF","facultatif",10,1]];
 /* Total des ressources DM et EDD : jamais plus de 24, sans plafond propre à chaque matière */
 const GR={};[[["dm_h","dm_g","dm_s"],"DM"],[["edd_v","edd_m"],"EDD"]].forEach(([g,n])=>g.forEach(k=>GR[k]={g,m:24,n}));
@@ -376,8 +376,13 @@ const sec=v=>`<span style="display:inline-flex;align-items:center;gap:6px"><code
 const empty=(t,s,a="",i="folder")=>`<div class="em0">${ic(i,40)}<b>${t}</b><p>${s}</p>${a}</div>`;
 const skel=()=>`<div class="kg">${"<div class=sk></div>".repeat(4)}</div><div class="sk" style="height:260px"></div>`;
 const kpi=(l,v,s="",i="chart")=>`<div class="kc"><div class="ki">${ic(i,22)}</div><div><span class="mu">${l}</span><b>${v}</b><small>${s}</small></div></div>`;
-function wa(num,login,pw){let n=String(num||"").replace(/\D/g,"");if(n.startsWith("00"))n=n.slice(2);if(n.length==9)n="221"+n;if(n.length<9)return toast("Numéro de téléphone invalide.","er");
-const t=`Bonjour,\nVoici vos identifiants pour le suivi des notes CM2 – IEF de Tivaouane :\nSite : ${SITE_URL}\nIdentifiant : ${login}\nMot de passe : ${pw}\nMerci de ne pas les partager.`;window.open("https://wa.me/"+n+"?text="+encodeURIComponent(t),"_blank")}
+let WAW=null;const WA_SIG="\n\n© BEXCO IEF TIVAOUANE";
+function waNum(v){let n=String(v||"").replace(/\D/g,"");if(n.startsWith("00"))n=n.slice(2);if(n.length==9)n="221"+n;return n.length<9?"":n}
+function waPre(){try{return window.open("","_blank")}catch(_){return null}}
+function waEnd(w){try{if(w&&!w.closed)w.close()}catch(_){}}
+function waGo(w,n,t){const u="https://wa.me/"+n+"?text="+encodeURIComponent(t+WA_SIG);if(w&&!w.closed){w.location.href=u;return}const x=window.open(u,"_blank");if(!x)location.href=u}
+function wa(num,login,pw,w){const n=waNum(num);if(!n){waEnd(w);return toast("Numéro de téléphone invalide.","er")}
+const t=`Bonjour,\nVoici vos identifiants pour le suivi des notes CM2 – IEF de Tivaouane :\nSite : ${SITE_URL}\nIdentifiant : ${login}\nMot de passe : ${pw}\nCordialement.`;waGo(w,n,t)}
 const askPhone=async()=>{const r=await modal({t:"Envoyer par WhatsApp",b:`<label>Numéro WhatsApp</label><input id="mp" placeholder="77 123 45 67" inputmode="tel">`,ok:"Ouvrir WhatsApp",val:m=>{const v=m.querySelector("#mp").value.trim();if(v.replace(/\D/g,"").length<9)throw"Numéro invalide.";return v}});return r};
 
 /* ===== Noms des domaines et sous-domaines (modifiables par l'administrateur principal) ===== */
@@ -419,8 +424,8 @@ async function forgot(){const t=$("#ft").value.trim(),m=$("#m");m.className="err
 const b=$(".btn.pr");b.disabled=true;const{data,error}=await sb.rpc("demander_mdp",{p_tel:t});b.disabled=false;
 if(error)return m.textContent=/schema cache|does not exist|Could not find/i.test(error.message)?"Service momentanément indisponible. Contactez l’administration.":error.message;
 if(!data)return m.textContent="Ce numéro n’est pas celui d’une école inscrite. Vérifiez-le ou contactez l’administration.";
-m.className="ok";m.innerHTML="Demande envoyée. L’administration vous enverra un nouveau mot de passe par WhatsApp sur ce numéro. Revenez ensuite vous connecter."+(ADMIN_WA?`<br><br><button class="btn wa" onclick="waAdmin('${encodeURIComponent(String(data))}','${encodeURIComponent(t)}')">Prévenir l’administration par WhatsApp</button>`:"")}
-function waAdmin(n,t){window.open("https://wa.me/"+ADMIN_WA.replace(/\D/g,"")+"?text="+encodeURIComponent("Bonjour, j’ai oublié le mot de passe de l’école « "+decodeURIComponent(n)+" ». Mon numéro WhatsApp : "+decodeURIComponent(t)+". Merci de m’envoyer un nouveau mot de passe."),"_blank")}
+m.className="ok";m.innerHTML="Demande envoyée. L’administration vous enverra un nouveau mot de passe par WhatsApp sur ce numéro. Revenez ensuite vous connecter."}
+
 async function out(){try{await flushAll()}catch(e){}
 if(typeof qpend=="function"&&qpend()&&!await ask("Notes non envoyées","<p>Des notes ne sont pas encore envoyées au serveur. Elles restent sur cet appareil et partiront à votre prochaine connexion avec du réseau.</p><p>Se déconnecter quand même ?</p>","Se déconnecter",true))return;
 try{await Promise.race([sb.auth.signOut({scope:"local"}),new Promise(r=>setTimeout(r,4000))])}catch(e){}
@@ -734,7 +739,7 @@ async function loadRes(force){if(!force&&RC[MO]){({SCH,CD,INS,DS,PEND,PW}=RC[MO]
 const[ec,el,cd,ins,ds,nt,pq,pnt,dl]=await Promise.all([all(()=>sb.from("ecoles").select("*").order("id")),all(()=>sb.from("eleves").select("id,ecole_id,prenom,nom,sexe").order("id")),all(()=>sb.from("codecs").select("*").order("id")),all(()=>sb.from("inspecteurs").select("*").order("nom")),all(()=>sb.from("districts").select("*").order("nom")).catch(()=>[]),all(()=>sb.from("notes").select("*").eq("mois",MO).eq("numero",1).order("eleve_id")),sb.from("demandes_mdp").select("id").eq("traitee",false).then(r=>r.data?r.data.length:0,()=>0),pmo()?all(()=>sb.from("notes").select("*").eq("mois",pmo()).eq("numero",1).order("eleve_id")).catch(()=>[]):Promise.resolve([]),sb.from("parametres").select("valeur").eq("cle","delai_alerte_jours").maybeSingle().then(r=>r.data?parseInt(r.data.valeur,10):null,()=>null)]);
 DELAI=Number.isFinite(dl)&&dl>=0?dl:10;
 const cm={},NM={},NP={},by={};cd.forEach(c=>cm[c.id]=c);nt.forEach(r=>NM[r.eleve_id]=r);pnt.forEach(r=>NP[r.eleve_id]=r);el.forEach(s=>(by[s.ecole_id]=by[s.ecole_id]||[]).push({...s,n:NM[s.id],pn:NP[s.id]}));
-SCH=ec.filter(e=>e.statut=="valide").map(e=>({...e,codec:(cm[e.codec_id]||{}).nom||"Sans CODEC",district_id:(cm[e.codec_id]||{}).district_id||null,st:(by[e.id]||[]).sort(cmp)}));CD=cd;INS=ins;DS=ds;PEND=ec.filter(e=>e.statut=="en_attente").length;PW=pri()?pq:0;RC[MO]={SCH,CD,INS,DS,PEND,PW}}
+SCH=ec.filter(e=>e.statut=="valide").map(e=>({...e,codec:(cm[e.codec_id]||{}).nom||"Sans CODEC",district_id:(cm[e.codec_id]||{}).district_id||null,st:(by[e.id]||[]).sort(cmp)}));CD=cd;INS=ins;DS=ds;PEND=ec.filter(e=>e.statut=="en_attente").length;PW=pq;RC[MO]={SCH,CD,INS,DS,PEND,PW}}
 /* Alertes des écoles : urgente si pourcentage < 50 % ; à suivre si saisie absente/incomplète ou si LC ou Maths sous 50 % ; comparaison avec le mois précédent */
 function alerts(){return SCH.map(s=>{const n=s.st.length,ds=s.st.filter(x=>done(x.n)).length,p=sp(s,""),pp=rate(s.st.map(x=>({sexe:x.sexe,n:x.pn}))),r=[];
 if(p!=null&&p<50)r.push(["ko",`Pourcentage de réussite : ${f1(p)} % (sous 50 %)`,trend(p,pp)]);
@@ -743,9 +748,9 @@ SUBJ.forEach(([d])=>{const v=subjPct(s.st,"n",d);if(v!=null&&v<50)r.push(["wr",`
 return{s,r}}).filter(a=>a.r.length).sort((a,b)=>b.r.filter(x=>x[0]=="ko").length-a.r.filter(x=>x[0]=="ko").length||a.s.nom.localeCompare(b.s.nom,"fr"))}
 const myAl=()=>{const A=alerts();if(pri()||!MI)return A;const m=DS.filter(d=>d.inspecteur_id==MI).map(d=>d.id);return m.length?A.filter(a=>m.includes(a.s.district_id)):A};
 async function bellLoad(){try{await loadRes();await getMI();updBell()}catch(e){}}
-function updBell(){const n=myAl().length+PEND+(pri()?PW:0);["#bb","#bb-menu"].forEach(q=>{const b=$(q);if(b){b.textContent=n;b.classList.toggle("hide",!n)}})}
+function updBell(){const n=myAl().length+PEND+PW;["#bb","#bb-menu"].forEach(q=>{const b=$(q);if(b){b.textContent=n;b.classList.toggle("hide",!n)}})}
 async function bellM(){if(isE())return modal({t:"Notifications",b:"<p>Aucune notification.</p>",no:false,ok:"Fermer",val:()=>true});try{await loadRes();await getMI()}catch(e){}const A=myAl();
-const r=await modal({t:"Notifications",w:480,b:`${PEND?`<div class="bn2" style="margin:8px 0">${PEND} inscription(s) en attente de validation</div>`:""}${pri()&&PW?`<div class="bn2" style="margin:8px 0">${PW} demande(s) de mot de passe oublié</div>`:""}<p><b>${A.length}</b> école(s) à surveiller pour ${ml(MO)}${!pri()&&MI?" dans votre district":""}.</p>`,no:"Fermer",ok:PEND?"Voir les demandes d’accès":pri()&&PW?"Ouvrir la gestion des écoles":"Voir les alertes",val:()=>PEND?"dem":pri()&&PW?"ge":"al"});if(r)go(r)}
+const r=await modal({t:"Notifications",w:480,b:`${PEND?`<div class="bn2" style="margin:8px 0">${PEND} inscription(s) en attente de validation</div>`:""}${PW?`<div class="bn2" style="margin:8px 0">${PW} demande(s) de mot de passe oublié</div>`:""}<p><b>${A.length}</b> école(s) à surveiller pour ${ml(MO)}${!pri()&&MI?" dans votre district":""}.</p>`,no:"Fermer",ok:PEND?"Voir les demandes d’accès":pri()&&PW?"Ouvrir la gestion des écoles":"Voir les alertes",val:()=>PEND?"dem":pri()&&PW?"ge":"al"});if(r)go(r)}
 
 /* ===== ADMINISTRATION : vue générale ===== */
 V.ov=async()=>{await loadRes();updBell();const L=SCH;if(!L.length)return $("#vw").innerHTML=(PEND?`<div class="bn2"><span>${PEND} inscription(s) en attente</span><button class="btn sm" onclick="go('dem')">Examiner</button></div>`:"")+empty("Aucune école validée pour le moment","Les écoles apparaîtront ici dès que leur inscription sera validée.",pri()?`<button class="btn pr" onclick="go('ge')">Gérer les écoles</button>`:"","school");
@@ -756,7 +761,7 @@ $("#vw").innerHTML=`<div class="dash-head"><div><span class="dash-eyebrow">ADMIN
 <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h3 style="margin:0">Écoles à surveiller</h3><button class="btn sm" onclick="go('al')">Tout voir (${al.length})</button></div>${al.slice(0,5).map(a=>alRow(a)).join("")||`<p class="mu">Aucune école à surveiller ce mois-ci.</p>`}</div>`};
 const needRel=a=>a.r.some(x=>/Aucun élève|Aucune saisie|Saisie incomplète/.test(x[1]));
 function relance(id){const s=SCH.find(x=>x.id==id);if(!s)return;const n=s.st.length,ds=s.st.filter(x=>done(x.n)).length,t=s.telephone?nat(s.telephone):"";if(!t)return toast("Numéro WhatsApp non renseigné pour cette école.","er");
-const m="Bonjour "+(s.directeur||"Monsieur/Madame le Directeur")+",\nLa saisie des notes de "+ml(MO)+" de l’école "+s.nom+" n’est pas terminée ("+ds+"/"+n+" élèves). Merci de la compléter sur le site de suivi des notes : "+location.href.split("#")[0]+"\nCordialement.";window.open("https://wa.me/"+t+"?text="+encodeURIComponent(m),"_blank")}
+const m="Bonjour "+(s.directeur||"Monsieur/Madame le Directeur")+",\nLa saisie des notes de "+ml(MO)+" de l’école "+s.nom+" n’est pas terminée ("+ds+"/"+n+" élèves). Merci de la compléter sur le site de suivi des notes : "+location.href.split("#")[0]+"\nCordialement.";waGo(null,t,m)}
 const alRow=a=>`<div class="al2" onclick="openSch('${a.s.id}')"><span class="pill ${a.r.some(x=>x[0]=="ko")?"r":"w"}">${a.r.some(x=>x[0]=="ko")?"Urgent":"À suivre"}</span><div style="flex:1"><b>${esc(a.s.nom)}</b> <span class="mu">· ${esc(a.s.codec)}</span><br><span class="mu">${a.r.map(x=>esc(x[1])+(x[2]?" "+x[2]:"")).join("<br>")}</span></div>${needRel(a)?`<button class="btn" style="padding:6px 10px;font-size:12px" onclick="event.stopPropagation();relance('${a.s.id}')">Relancer</button>`:""}${bd(sp(a.s,""))}</div>`;
 
 /* ===== ADMINISTRATION : résultats des écoles ===== */
@@ -922,27 +927,27 @@ async function delEc(u){const e=ECD.ec.find(x=>x.user_id==u);if(await ask("Suppr
 const reqCard=()=>{const R=ECD.dem||[];if(!R.length)return"";const ec={};ECD.ec.forEach(e=>ec[e.user_id]=e);
 return`<div class="card" style="border-color:var(--wr)"><h3 style="margin-top:0">${ic("key",16)} Demandes de mot de passe oublié (${R.length})</h3><p class="mu">Le numéro saisi correspond bien au numéro d’inscription de l’école. Un clic crée un nouveau mot de passe provisoire et ouvre WhatsApp vers ce numéro.</p>${R.map(r=>{const e=ec[r.user_id];return`<div class="tbr"><div style="flex:1;min-width:180px"><b>${esc(e?e.nom:"École")}</b><br><span class="mu">📱 ${esc(r.telephone)} · ${new Date(r.created_at).toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"})}</span></div><button class="btn wa sm" onclick="sendReq('${r.id}')">${ic("msg",15)} Envoyer le nouveau mot de passe</button><button class="btn sm" onclick="ignReq('${r.id}')">Ignorer</button></div>`}).join("")}</div>`};
 async function sendReq(id){const r=ECD.dem.find(x=>x.id==id),e=r&&ECD.ec.find(x=>x.user_id==r.user_id);if(!e)return toast("École introuvable.","er");
-if(!await ask("Envoyer un nouveau mot de passe ?",`Un nouveau mot de passe provisoire sera créé pour <b>${esc(e.nom)}</b>. L’ancien ne fonctionnera plus.`,"Créer le mot de passe"))return;
-const pw=rnd(),{error}=await sb.rpc("changer_mdp_utilisateur",{p_user:r.user_id,p_mdp:pw});if(error)return toast(dbe(error),"er");await sb.from("demandes_mdp").update({traitee:true}).eq("id",id);RC={};
-const ok=await modal({t:"Mot de passe créé",b:`<p>Nouveau mot de passe provisoire pour <b>${esc(e.nom)}</b> : ${sec(pw)}</p><p class="mu">Il sera envoyé par WhatsApp au <b>${esc(r.telephone)}</b>, le numéro de l’inscription. L’école devra en choisir un nouveau à sa prochaine connexion.</p>`,ok:"Ouvrir WhatsApp",no:"Plus tard",val:()=>true});
-if(ok)wa(r.telephone,idOf(e),pw);refresh()}
+if(!await ask("Envoyer un nouveau mot de passe ?",`Un nouveau mot de passe provisoire sera créé pour <b>${esc(e.nom)}</b> et WhatsApp s’ouvrira directement avec le message. L’ancien ne fonctionnera plus.`,"Créer et ouvrir WhatsApp"))return;
+const n=waNum(r.telephone),w=n?waPre():null;const pw=rnd(),{error}=await sb.rpc("changer_mdp_utilisateur",{p_user:r.user_id,p_mdp:pw});if(error){waEnd(w);return toast(dbe(error),"er")}await sb.from("demandes_mdp").update({traitee:true}).eq("id",id);RC={};
+if(n)wa(r.telephone,idOf(e),pw,w);else await modal({t:"Mot de passe créé",b:`<p>Nouveau mot de passe provisoire pour <b>${esc(e.nom)}</b> : ${sec(pw)}</p><p class="mu">Le numéro de l’inscription est invalide : transmettez ce mot de passe à l’école par un autre moyen.</p>`,ok:"Fermer",no:false,val:()=>true});
+refresh()}
 const ignReq=id=>chk(sb.from("demandes_mdp").update({traitee:true}).eq("id",id),()=>{RC={};V.ge()},"Demande classée.");
-async function waEc(u){const e=ECD.ec.find(x=>x.user_id==u),pw=ECD.mp[u];if(!pw)return toast("Cette école a choisi son mot de passe : générez-en un nouveau pour pouvoir l’envoyer.","er");let t=e.telephone;if(!t){t=await askPhone();if(t){const{error}=await sb.from("ecoles").update({telephone:t}).eq("id",e.id);if(!error)e.telephone=t}}if(t)wa(t,idOf(e),pw)}
+async function waEc(u){const e=ECD.ec.find(x=>x.user_id==u),pw=ECD.mp[u];if(!pw)return toast("Cette école a choisi son mot de passe : générez-en un nouveau pour pouvoir l’envoyer.","er");let t=e.telephone,w=null;if(!t){t=await askPhone();if(!t)return;w=waNum(t)?waPre():null;const{error}=await sb.from("ecoles").update({telephone:t}).eq("id",e.id);if(!error)e.telephone=t}wa(t,idOf(e),pw,w)}
 
 /* ===== DEMANDES D’ACCÈS (tous les administrateurs) : valider ou refuser, sans mot de passe, avec journal ===== */
 const ACT={ecole_validee:"Inscription validée",ecole_refusee:"Inscription refusée",ecole_suspendue:"École suspendue",ecole_remise_en_attente:"Remise en attente"};
 let DM={ec:[],cd:[],ds:[],jr:[]},FD={t:"att"};
 async function decider(id,dec,nom){let motif=null;
 if(dec=="refuse"){const r=await modal({t:"Refuser l’inscription",danger:true,ok:"Refuser",b:`<p>École : <b>${esc(nom)}</b></p><label>Motif (facultatif, visible par le directeur)</label><input id="mf" maxlength="200" placeholder="Ex. : numéro de téléphone incorrect">`,val:m=>m.querySelector("#mf").value.trim()});if(r===null)return false;motif=r}
-else if(dec=="valide"){if(!await ask("Valider l’inscription ?",`<b>${esc(nom)}</b> pourra se connecter et saisir les notes. La décision sera enregistrée dans le journal à votre nom.`,"Valider"))return false}
+else if(dec=="valide"){if(!await ask("Valider l’inscription ?",`<b>${esc(nom)}</b> pourra se connecter et saisir les notes. La décision sera enregistrée dans le journal à votre nom. WhatsApp s’ouvrira ensuite pour prévenir le directeur.`,"Valider"))return false;const e0=((typeof ECD!="undefined"&&ECD.ec)||[]).find(x=>x.id==id)||((typeof DM!="undefined"&&DM.ec)||[]).find(x=>x.id==id);if(e0&&waNum(e0.telephone))WAW=waPre()}
 else if(!await ask("Changer le statut ?",`Le statut de <b>${esc(nom)}</b> sera modifié et enregistré dans le journal.`,"Confirmer"))return false;
 const{error}=await sb.rpc("decider_ecole",{p_ecole:String(id),p_decision:dec,p_motif:motif});
-if(error){toast(/does not exist|schema cache|could not find/i.test(error.message)?"Exécutez d’abord le script migration7.sql dans Supabase.":error.message,"er");return false}
+if(error){waEnd(WAW);WAW=null;toast(/does not exist|schema cache|could not find/i.test(error.message)?"Exécutez d’abord le script migration7.sql dans Supabase.":error.message,"er");return false}
 RC={};toast(dec=="valide"?"École validée. Informez maintenant le directeur.":dec=="refuse"?"Inscription refusée.":"Statut modifié.");return true}
 const SITE_URL="https://csarr111-arch.github.io/suivi-notes/";
-async function informerDir(e){const txt=`Bonjour ${e.directeur||""},\nL’inscription de l’école ${e.nom} sur le site de suivi des notes CM2 – IEF de Tivaouane a été validée.\nSite : ${SITE_URL}\nConnectez-vous avec vos accès pour saisir vos élèves. Vous pouvez aussi exporter la fiche Excel, la remplir, puis l’importer.\nMerci.`;
-const r=await modal({t:"Informer le directeur",w:480,ok:"Ouvrir WhatsApp",no:"Plus tard",b:`<p><b>${esc(e.nom)}</b> est validée. Envoyez ce message au directeur (modifiable). Il ne contient aucun mot de passe.</p><label>Numéro WhatsApp</label><input id="wn" inputmode="tel" value="${esc(e.telephone||"")}" placeholder="77 123 45 67"><label>Message</label><textarea id="wm" rows="7" style="width:100%">${esc(txt)}</textarea>`,val:m=>{let n=m.querySelector("#wn").value.replace(/\D/g,"");if(n.startsWith("00"))n=n.slice(2);if(n.length==9)n="221"+n;if(n.length<9)throw"Numéro de téléphone invalide.";return{n,t:m.querySelector("#wm").value}}});
-if(r)window.open("https://wa.me/"+r.n+"?text="+encodeURIComponent(r.t),"_blank")}
+async function informerDir(e){const w=WAW;WAW=null;let n=waNum(e.telephone);
+if(!n){const v=await askPhone();if(!v){waEnd(w);return}n=waNum(v);if(!n){waEnd(w);return toast("Numéro de téléphone invalide.","er")}}
+const t=`Bonjour${e.directeur?" "+e.directeur:""},\nL’inscription de l’école ${e.nom} sur le site de suivi des notes CM2 – IEF de Tivaouane a été validée.\nSite : ${SITE_URL}\nBienvenue.`;waGo(w,n,t)}
 async function decEc(id,dec){const e=ECD.ec.find(x=>x.id==id);if(!await decider(id,dec,e?e.nom:""))return ecTable();V.ge();if(dec=="valide"&&e)informerDir(e)}
 V.dem=async()=>{let ec,cd,ds;try{[ec,cd,ds]=await Promise.all([all(()=>sb.from("ecoles").select("id,nom,directeur,telephone,codec_id,statut,motif_refus,decide_le").order("nom").order("id")),all(()=>sb.from("codecs").select("id,nom,district_id").order("nom").order("id")),all(()=>sb.from("districts").select("id,nom").order("nom").order("id")).catch(()=>[])])}catch(e){return $("#vw").innerHTML=empty("Migration requise","Exécutez d’abord le script migration7.sql dans Supabase.","","alert")}
 const j=await sb.from("journal_actions").select("*").order("created_at",{ascending:false}).limit(300);DM={ec,cd,ds,jr:j.data||[]};demDraw()};
