@@ -399,16 +399,22 @@ async function loadLib(){try{const{data}=await sb.from("libelles").select("*");(
 
 /* ===== Explication vocale de la saisie (voix du téléphone, en français) ===== */
 const VOIX_SAISIE="Pour saisir plus facilement vos élèves et leurs notes, utilisez la fiche Excel. Première étape : appuyez sur le bouton Fiche Excel pour la télécharger. Deuxième étape : ouvrez-la, puis remplissez vos élèves et leurs notes. Quand vous avez fini, enregistrez le fichier. Troisième étape : revenez sur le site, appuyez sur le bouton Importer Excel, puis choisissez votre fichier. Tous vos élèves et leurs notes sont alors enregistrés d’un seul coup. Enfin, le bouton Exporter P D F permet d’imprimer, soit les fiches de notes, soit les fiches de réussite classées par ordre de mérite, pour les afficher.";
-let VOIXON=false,VOIXN=0;
+const AUDIO_SAISIE="explication-saisie.mp3";
+let VOIXON=false,VOIXN=0,AUD=null;
 const voixLbl=()=>{const b=$("#hvs");if(b)b.innerHTML=VOIXON?ic("x")+" Arrêter la voix":ic("vol")+" Écouter l’explication"};
-function voixStop(){VOIXN++;VOIXON=false;try{window.speechSynthesis.cancel()}catch(e){}voixLbl()}
-function voixSaisie(){const s=window.speechSynthesis;if(!s||!window.SpeechSynthesisUtterance)return toast("La voix n’est pas disponible sur ce téléphone.","er");
- if(VOIXON)return voixStop();
+function voixStop(){VOIXN++;VOIXON=false;if(AUD){try{AUD.pause()}catch(e){}AUD=null}try{window.speechSynthesis.cancel()}catch(e){}voixLbl()}
+/* Le bouton vert joue d'abord l'enregistrement (explication-saisie.mp3, à côté de index.html) ; sans fichier, il utilise la voix du téléphone */
+function voixSaisie(){if(VOIXON)return voixStop();const n=++VOIXN;VOIXON=true;voixLbl();
+ const a=new Audio(AUDIO_SAISIE);AUD=a;
+ const sec=()=>{if(n!=VOIXN)return;AUD=null;VOIXON=false;voixTel()};
+ a.onended=()=>{if(n==VOIXN){VOIXON=false;AUD=null;voixLbl()}};a.onerror=sec;
+ try{const r=a.play();if(r&&r.catch)r.catch(sec)}catch(e){sec()}}
+function voixTel(){const s=window.speechSynthesis;if(!s||!window.SpeechSynthesisUtterance)return toast("La voix n’est pas disponible sur ce téléphone.","er");
  const vs=s.getVoices();if(vs.length&&!vs.some(v=>/^fr/i.test(v.lang)))toast("Aucune voix française trouvée sur ce téléphone. Installez-la dans les réglages du téléphone (synthèse vocale).","er");
  const v=vs.find(x=>/^fr[-_]FR/i.test(x.lang))||vs.find(x=>/^fr/i.test(x.lang)),parts=VOIX_SAISIE.match(/[^.!?]+[.!?]*/g)||[],n=++VOIXN;
  if(s.speaking||s.pending)s.cancel();VOIXON=true;voixLbl();
  parts.forEach((p,i)=>{const u=new SpeechSynthesisUtterance(p.trim());u.lang="fr-FR";u.rate=.92;if(v)u.voice=v;if(i==parts.length-1)u.onend=u.onerror=()=>{if(n==VOIXN){VOIXON=false;voixLbl()}};s.speak(u)})}
-window.addEventListener("pagehide",()=>{try{window.speechSynthesis.cancel()}catch(e){}});
+window.addEventListener("pagehide",()=>{try{window.speechSynthesis.cancel()}catch(e){}if(AUD)try{AUD.pause()}catch(e){}});
 
 /* ===== Graphiques ===== */
 const hb=L=>L.length?`<div class="hb">${L.map(x=>`<div class="hr ${x.me?"me":""}"><span class="hl" title="${esc(x.t||"")}">${x.l}</span><div class="ht"><i class="${pctClass(x.v)}" style="width:${Math.min(100,x.v||0)}%"></i><u></u></div><b>${pc(x.v)}</b></div>`).join("")}</div>`:`<p class="mu">Aucune donnée.</p>`;
