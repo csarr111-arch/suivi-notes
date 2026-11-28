@@ -1,7 +1,7 @@
 /* Suivi des notes CM2 – IEF Tivaouane : ouverture sans réseau.
    Les données (notes, élèves) ne sont JAMAIS mises en mémoire ici : elles viennent toujours de Supabase.
    Pour désactiver : supprimer ce fichier sur GitHub (ou le remplacer par un script qui se désinscrit). */
-const C = "suivi-notes-v2";
+const C = "suivi-notes-v3";
 const INDEX = new URL("index.html", self.registration.scope).href;
 const LOCAL = ["manifest.json", "icon-192.png", "icon-512.png"];
 const CDN = [
